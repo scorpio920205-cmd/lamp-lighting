@@ -163,29 +163,70 @@
   }
   @keyframes swayA{0%,100%{transform:translateX(-16px) rotate(-3deg)}50%{transform:translateX(16px) rotate(3deg)}}
   @keyframes swayB{0%,100%{transform:translateX(14px) rotate(3deg)}50%{transform:translateX(-14px) rotate(-3deg)}}
-  /* ---------- 夜晚流星效果 ---------- */
+  /* ---------- 新海誠風格彗星流星效果 ---------- */
   .shooting-star {
     position: absolute;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0.1) 70%, rgba(255,255,255,0) 100%);
-    filter: drop-shadow(0 0 3px rgba(255,255,255,0.9));
-    animation: shoot 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    height: 4px;
+    border-radius: 50%;
+    /* 青色到紫色的夢幻色彩漸變 */
+    background: linear-gradient(90deg, #00f3ff 0%, #a600ff 50%, rgba(166,0,ff,0) 100%);
+    filter: drop-shadow(0 0 12px #00f3ff) drop-shadow(0 0 20px #a600ff);
+    animation: shootComet 7.5s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
     opacity: 0;
     z-index: 2;
     pointer-events: none;
     transform-origin: left center;
   }
-  @keyframes shoot {
+  
+  /* 彗星頭部發光球體 */
+  .shooting-star::before {
+    content: "";
+    position: absolute;
+    left: 0; top: -5px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 20px 8px #ffffff, 0 0 35px 12px #00f3ff;
+  }
+
+  /* 夢幻粉蠟筆色調的流星碎屑微粒 */
+  .comet-spark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    filter: blur(0.5px);
+    animation: sparkDrift 3.5s ease-out forwards;
+  }
+
+  @keyframes shootComet {
     0% {
-      transform: translate(0, 0) rotate(-35deg) scaleX(0);
+      transform: translate(0, 0) rotate(-28deg) scaleX(0);
       opacity: 0;
     }
-    15% {
-      transform: translate(0, 0) rotate(-35deg) scaleX(1);
-      opacity: 0.95;
+    10% {
+      transform: translate(100px, 53px) rotate(-28deg) scaleX(1);
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
     }
     100% {
-      transform: translate(180px, 126px) rotate(-35deg) scaleX(0.2);
+      transform: translate(950px, 505px) rotate(-28deg) scaleX(0.7);
+      opacity: 0;
+    }
+  }
+
+  @keyframes sparkDrift {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.9;
+    }
+    100% {
+      transform: translate(var(--dx), var(--dy)) scale(0.1);
       opacity: 0;
     }
   }
@@ -659,35 +700,85 @@
     }
   };
 
-  /* ---------- 夜晚流星生成器 ---------- */
+  /* ---------- 新海誠風格巨大彗星生成器 ---------- */
   function spawnShootingStar() {
     if (stage.getAttribute('data-theme') !== 'night') return;
     
     var star = document.createElement('div');
     star.className = 'shooting-star';
     
-    // 隨機在畫面上半部分生成起點
-    var startX = Math.random() * 60; // 0% - 60%
-    var startY = Math.random() * 45; // 0% - 45%
-    var length = 90 + Math.random() * 110; // 流星長度 90px - 200px
+    // 從左上角高處滑落至右下角城市天際線
+    var startX = 5 + Math.random() * 20; // 5% - 25%
+    var startY = -5; // 從螢幕外上方墜落
+    var length = 340 + Math.random() * 120; // 巨大的彗星拖尾長度 340px - 460px
     
     star.style.left = startX + '%';
     star.style.top = startY + '%';
     star.style.width = length + 'px';
     
     stage.appendChild(star);
+
+    // 彗星墜落期間，定時在彗星頭部位置釋放色彩夢幻的發光微粒 (Sparks)
+    var sparkInterval = setInterval(function() {
+      if (!star.parentNode) {
+        clearInterval(sparkInterval);
+        return;
+      }
+      
+      // 計算目前彗星頭部的估計座標以釋放碎屑
+      var rect = star.getBoundingClientRect();
+      if (rect.width > 0) {
+        // 隨機釋放 3-5 顆夢幻粉蠟筆色調微粒 (青、紫、粉紅、粉黃)
+        var colors = ['#5bf2ff', '#d16eff', '#ff9ee0', '#ffeb99', '#ffffff'];
+        for (var i = 0; i < 4; i++) {
+          var spark = document.createElement('div');
+          spark.className = 'comet-spark';
+          spark.style.left = (rect.left + window.scrollX) + 'px';
+          spark.style.top = (rect.top + window.scrollY) + 'px';
+          spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          spark.style.boxShadow = '0 0 8px ' + spark.style.backgroundColor;
+          
+          // 向後噴散擴散的偏移方向
+          var dx = (Math.random() * -120 - 40) + 'px';
+          var dy = (Math.random() * 80 - 40) + 'px';
+          spark.style.setProperty('--dx', dx);
+          spark.style.setProperty('--dy', dy);
+          
+          stage.appendChild(spark);
+          
+          // 閉包防止記憶體洩漏並移除微粒
+          (function(s) {
+            setTimeout(function() { s.remove(); }, 3500);
+          })(spark);
+        }
+      }
+    }, 180);
     
     setTimeout(function() {
+      clearInterval(sparkInterval);
       star.remove();
-    }, 2400);
+    }, 7600);
   }
 
-  // 偶爾在夜晚生成流星 (每 6 秒有 40% 的機率生成)
-  setInterval(function() {
-    if (stage.getAttribute('data-theme') === 'night' && Math.random() > 0.6) {
+  // 15 - 20 分鐘出現一次流星
+  // 15分鐘 = 900,000毫秒，20分鐘 = 1,200,000毫秒
+  function queueNextComet() {
+    var minMs = 15 * 60 * 1000;
+    var maxMs = 20 * 60 * 1000;
+    var delay = minMs + Math.random() * (maxMs - minMs);
+    
+    setTimeout(function() {
       spawnShootingStar();
-    }
-  }, 6000);
+      queueNextComet(); // 遞迴調用排程下一次流星
+    }, delay);
+  }
+
+  // 為了方便現場人員預覽與展示效果，剛載入網頁 5 秒後先展示一次，之後便進入 15-20 分鐘的正式循環
+  setTimeout(function() {
+    spawnShootingStar();
+  }, 5000);
+
+  queueNextComet();
 
 })();
 </script>
