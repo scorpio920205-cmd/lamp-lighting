@@ -166,28 +166,26 @@
   /* ---------- 夜晚流星效果 ---------- */
   .shooting-star {
     position: absolute;
-    height: 2px;
-    background: linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
-    filter: drop-shadow(0 0 6px rgba(255,255,255,1));
-    animation: shoot 2.2s linear forwards;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0.1) 70%, rgba(255,255,255,0) 100%);
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.9));
+    animation: shoot 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     opacity: 0;
     z-index: 2;
     pointer-events: none;
+    transform-origin: left center;
   }
   @keyframes shoot {
     0% {
-      transform: translate(0, 0) rotate(-45deg) scale(0);
+      transform: translate(0, 0) rotate(-35deg) scaleX(0);
       opacity: 0;
     }
-    8% {
-      transform: translate(0, 0) rotate(-45deg) scale(1);
-      opacity: 1;
-    }
-    90% {
-      opacity: 1;
+    15% {
+      transform: translate(0, 0) rotate(-35deg) scaleX(1);
+      opacity: 0.95;
     }
     100% {
-      transform: translate(320px, 320px) rotate(-45deg) scale(0.2);
+      transform: translate(180px, 126px) rotate(-35deg) scaleX(0.2);
       opacity: 0;
     }
   }
@@ -419,22 +417,22 @@
     var t2 = el('text', {x:"70", y:"78", "text-anchor":"middle", "font-size":"13", "font-family":"'Noto Serif TC',serif", "font-weight":"800", fill:swatch.ink}, svg);
     t2.textContent = entry.b;
 
-    // 懸掛的渡人心願條幅 (祈福卡)
+    // 懸掛的渡人心願條幅 (祈福卡) - 寬度縮小 1/3 (50px 縮小至 34px)
     // 1. 懸吊線
     el('line', {x1:"70", y1:"113", x2:"70", y2:"132", stroke:"#c7b28f", "stroke-width":"1.8"}, svg);
     
-    // 2. 條幅背景 (白/米色雅緻紙質，加大尺寸)
-    el('rect', {x:"45", y:"132", width:"50", height:"96", rx:"3", fill:"#fffdf8", stroke:"#e6dbc0", "stroke-width":"1"}, svg);
+    // 2. 條幅背景 (寬度為 34px)
+    el('rect', {x:"53", y:"132", width:"34", height:"96", rx:"2", fill:"#fffdf8", stroke:"#e6dbc0", "stroke-width":"1"}, svg);
     
     // 3. 條幅上下紅邊裝飾
-    el('rect', {x:"45", y:"132", width:"50", height:"6", fill:"#c0392b", rx:"1"}, svg);
-    el('rect', {x:"45", y:"222", width:"50", height:"6", fill:"#c0392b", rx:"1"}, svg);
+    el('rect', {x:"53", y:"132", width:"34", height:"5", fill:"#c0392b", rx:"1"}, svg);
+    el('rect', {x:"53", y:"223", width:"34", height:"5", fill:"#c0392b", rx:"1"}, svg);
 
-    // 4. 直書心願文字 (紅色傳統大字體，清晰立體)
+    // 4. 直書心願文字 (縮小字型以適應窄版條幅)
     var wishChars = entry.w.split('');
     wishChars.forEach(function(ch, idx) {
       var ty = 153 + idx * 19;
-      var t = el('text', {x:"70", y:String(ty), "text-anchor":"middle", "font-size":"12.5", "font-family":"'Noto Serif TC',serif", "font-weight":"800", fill:"#c0392b"}, svg);
+      var t = el('text', {x:"70", y:String(ty), "text-anchor":"middle", "font-size":"10.5", "font-family":"'Noto Serif TC',serif", "font-weight":"800", fill:"#c0392b"}, svg);
       t.textContent = ch;
     });
 
