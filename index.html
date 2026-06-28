@@ -163,7 +163,34 @@
   }
   @keyframes swayA{0%,100%{transform:translateX(-16px) rotate(-3deg)}50%{transform:translateX(16px) rotate(3deg)}}
   @keyframes swayB{0%,100%{transform:translateX(14px) rotate(3deg)}50%{transform:translateX(-14px) rotate(-3deg)}}
-
+  /* ---------- 夜晚流星效果 ---------- */
+  .shooting-star {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    filter: drop-shadow(0 0 6px rgba(255,255,255,1));
+    animation: shoot 2.2s linear forwards;
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  @keyframes shoot {
+    0% {
+      transform: translate(0, 0) rotate(-45deg) scale(0);
+      opacity: 0;
+    }
+    8% {
+      transform: translate(0, 0) rotate(-45deg) scale(1);
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(320px, 320px) rotate(-45deg) scale(0.2);
+      opacity: 0;
+    }
+  }
   /* ---------- page 2 : 發願表單 ---------- */
   .form-page{
     position:fixed; inset:0; z-index:20; display:none;
@@ -347,69 +374,72 @@
     {fill:'#e8745a', ink:'#3a160c'}
   ];
 
+  // 輔助函式：將顏色加深以製作 3D 邊緣陰影效果
+  function darkenColor(hex, percent) {
+    var num = parseInt(hex.replace("#",""), 16),
+    amt = Math.round(2.55 * percent),
+    R = (num >> 16) - amt,
+    G = (num >> 8 & 0x00FF) - amt,
+    B = (num & 0x0000FF) - amt;
+    return "#" + (0x1000000 + (R<0?0:R>255?255:R)*0x10000 + (G<0?0:G>255?255:G)*0x100 + (B<0?0:B>255?255:B)).toString(16).slice(1);
+  }
+
   function lanternSVG(swatch, entry){
-    var svg = el('svg', {viewBox:"0 0 100 210", width:"110", height:"230"});
+    var svg = el('svg', {viewBox:"0 0 140 240", width:"160", height:"272"});
     
-    // 漸變定義：模擬天燈內部的明亮火焰與紙張發光效果
     var gradId = "grad-" + Math.random().toString(36).substr(2, 9);
     var defs = el('defs', {}, svg);
+    
+    // 3D 漸變定義：模擬天燈中央熱源的明亮光點，並加深邊緣以產生立體3D球體光澤
     var radGrad = el('radialGradient', {
       id: gradId,
       cx: "50%",
-      cy: "80%",
-      r: "70%"
+      cy: "85%",
+      r: "65%"
     }, defs);
     el('stop', {offset: "0%", "stop-color": "#ffffff"}, radGrad);
-    el('stop', {offset: "30%", "stop-color": "#fffde6"}, radGrad);
-    el('stop', {offset: "70%", "stop-color": swatch.fill}, radGrad);
-    el('stop', {offset: "100%", "stop-color": swatch.fill}, radGrad);
+    el('stop', {offset: "20%", "stop-color": "#fffceb"}, radGrad);
+    el('stop', {offset: "60%", "stop-color": swatch.fill}, radGrad);
+    el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 25)}, radGrad);
 
-    // 火焰發光濾鏡
-    var filter = el('filter', {id: "glow-" + gradId}, defs);
-    el('feGaussianBlur', {stdDeviation: "2", result: "coloredBlur"}, filter);
-    var merge = el('feMerge', {}, filter);
-    el('feMergeNode', {in: "coloredBlur"}, merge);
-    el('feMergeNode', {in: "SourceGraphic"}, merge);
-
-    // 天燈本體：梯形且向上微幅張開的經典天燈形狀
-    var bodyPath = "M 22 25 C 10 58, 28 100, 28 100 Q 50 105 72 100 C 72 100, 90 58, 78 25 Q 50 10 22 25 Z";
+    // 天燈本體：加大且寬度增加的梯形天燈形狀
+    var bodyPath = "M 35 25 C 20 60, 42 110, 42 110 Q 70 115 98 110 C 98 110, 120 60, 105 25 Q 70 10 35 25 Z";
     el('path', {d:bodyPath, fill:"url(#" + gradId + ")"}, svg);
-    el('path', {d:bodyPath, fill:"none", stroke:"rgba(255,255,255,0.45)", "stroke-width":"1"}, svg);
+    el('path', {d:bodyPath, fill:"none", stroke:"rgba(255,255,255,0.45)", "stroke-width":"1.2"}, svg);
 
-    // 底部開口燃燒的火焰效果 (外焰、內焰疊加)
-    el('path', {d:"M 40 101 Q 50 72 50 72 Q 50 72 60 101 Z", fill:"#ff5500", opacity:"0.85", filter:"url(#glow-" + gradId + ")"}, svg);
-    el('path', {d:"M 44 101 Q 50 82 50 82 Q 50 82 56 101 Z", fill:"#ffee77", opacity:"0.95"}, svg);
+    // 燈底木框/鐵圈 (無手繪火焰向量，以整體乾淨及柔和光暈為主)
+    el('ellipse', {cx:"70", cy:"110", rx:"28", ry:"4", fill:"none", stroke:"#6e502c", "stroke-width":"2.5"}, svg);
 
-    // 燈底竹框/鐵圈
-    el('ellipse', {cx:"50", cy:"100", rx:"22", ry:"4", fill:"none", stroke:"#785933", "stroke-width":"2"}, svg);
-
-    // 天燈面文字 (兩行橫式字體)
+    // 天燈面文字 (兩行橫式字體，字體加大，清晰易讀)
     // 第一行：姓名 + 發願度
-    var t1 = el('text', {x:"50", y:"50", "text-anchor":"middle", "font-size":"7.5", "font-family":"'Noto Serif TC',serif", "font-weight":"700", fill:swatch.ink}, svg);
+    var t1 = el('text', {x:"70", y:"53", "text-anchor":"middle", "font-size":"10.5", "font-family":"'Noto Serif TC',serif", "font-weight":"700", fill:swatch.ink}, svg);
     t1.textContent = entry.a + " 發願度";
     
     // 第二行：想渡的朋友姓名
-    var t2 = el('text', {x:"50", y:"68", "text-anchor":"middle", "font-size":"8.5", "font-family":"'Noto Serif TC',serif", "font-weight":"700", fill:swatch.ink}, svg);
+    var t2 = el('text', {x:"70", y:"78", "text-anchor":"middle", "font-size":"13", "font-family":"'Noto Serif TC',serif", "font-weight":"800", fill:swatch.ink}, svg);
     t2.textContent = entry.b;
 
     // 懸掛的渡人心願條幅 (祈福卡)
     // 1. 懸吊線
-    el('line', {x1:"50", y1:"103", x2:"50", y2:"120", stroke:"#d4c39e", "stroke-width":"1.5"}, svg);
+    el('line', {x1:"70", y1:"113", x2:"70", y2:"132", stroke:"#c7b28f", "stroke-width":"1.8"}, svg);
     
-    // 2. 條幅背景 (白/米色雅緻紙質)
-    el('rect', {x:"38", y:"120", width:"24", height:"76", rx:"2", fill:"#fffdf9", stroke:"#e8dfc7", "stroke-width":"1"}, svg);
+    // 2. 條幅背景 (白/米色雅緻紙質，加大尺寸)
+    el('rect', {x:"45", y:"132", width:"50", height:"96", rx:"3", fill:"#fffdf8", stroke:"#e6dbc0", "stroke-width":"1"}, svg);
     
     // 3. 條幅上下紅邊裝飾
-    el('rect', {x:"38", y:"120", width:"24", height:"4", fill:"#c0392b", rx:"1"}, svg);
-    el('rect', {x:"38", y:"192", width:"24", height:"4", fill:"#c0392b", rx:"1"}, svg);
+    el('rect', {x:"45", y:"132", width:"50", height:"6", fill:"#c0392b", rx:"1"}, svg);
+    el('rect', {x:"45", y:"222", width:"50", height:"6", fill:"#c0392b", rx:"1"}, svg);
 
-    // 4. 直書心願文字 (紅色傳統字體)
+    // 4. 直書心願文字 (紅色傳統大字體，清晰立體)
     var wishChars = entry.w.split('');
     wishChars.forEach(function(ch, idx) {
-      var ty = 135 + idx * 13;
-      var t = el('text', {x:"50", y:String(ty), "text-anchor":"middle", "font-size":"8.5", "font-family":"'Noto Serif TC',serif", "font-weight":"700", fill:"#c0392b"}, svg);
+      var ty = 153 + idx * 19;
+      var t = el('text', {x:"70", y:String(ty), "text-anchor":"middle", "font-size":"12.5", "font-family":"'Noto Serif TC',serif", "font-weight":"800", fill:"#c0392b"}, svg);
       t.textContent = ch;
     });
+
+    // 融合真實燈籠光澤，產生發光光暈
+    svg.style.filter = "drop-shadow(0 0 16px " + swatch.fill + "cc)";
 
     return svg;
   }
@@ -630,6 +660,37 @@
       Array.prototype.forEach.call(wl.children, function(r){ r.firstChild.style.background = '#c9ccd1'; });
     }
   };
+
+  /* ---------- 夜晚流星生成器 ---------- */
+  function spawnShootingStar() {
+    if (stage.getAttribute('data-theme') !== 'night') return;
+    
+    var star = document.createElement('div');
+    star.className = 'shooting-star';
+    
+    // 隨機在畫面上半部分生成起點
+    var startX = Math.random() * 60; // 0% - 60%
+    var startY = Math.random() * 45; // 0% - 45%
+    var length = 90 + Math.random() * 110; // 流星長度 90px - 200px
+    
+    star.style.left = startX + '%';
+    star.style.top = startY + '%';
+    star.style.width = length + 'px';
+    
+    stage.appendChild(star);
+    
+    setTimeout(function() {
+      star.remove();
+    }, 2400);
+  }
+
+  // 偶爾在夜晚生成流星 (每 6 秒有 40% 的機率生成)
+  setInterval(function() {
+    if (stage.getAttribute('data-theme') === 'night' && Math.random() > 0.6) {
+      spawnShootingStar();
+    }
+  }, 6000);
+
 })();
 </script>
 </body>
