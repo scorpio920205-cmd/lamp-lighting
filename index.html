@@ -193,7 +193,7 @@
     <p class="title-cjk">心燈引渡</p>
     <div class="title-rule"></div>
     <p class="couplet">一燈引路，渡得一人　願以此心，廣結善緣</p>
-    <p class="counter">現在已發願渡人：<b id="lampCount">1,286</b> 願</p>
+    <p class="counter">現在已發願渡人：<b id="lampCount">0</b> 願</p>
   </header>
 
   <div class="scene" id="scene"></div>
@@ -406,7 +406,7 @@
   ];
   var firebaseEntries = [];
 
-  var spawnIdx = 0, entryIdx = 0, counter = 1286;
+  var spawnIdx = 0, entryIdx = 0, counter = 0;
   var countEl = document.getElementById('lampCount');
 
   // 如果 Firebase 已連線，開始監聽資料庫
@@ -427,7 +427,7 @@
     // 監聽發願總筆數更新計數器
     db.ref('wishes').on('value', function(snapshot) {
       var totalWishes = snapshot.numChildren();
-      counter = 1286 + totalWishes;
+      counter = totalWishes;
       countEl.textContent = counter.toLocaleString();
     });
   }
