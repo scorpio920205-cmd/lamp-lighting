@@ -1,0 +1,8 @@
+# Windows system files
+[Dd]esktop.ini
+Thumbs.db
+$RECYCLE.BIN/
+
+# Temporary files
+*.tmp
+*.log

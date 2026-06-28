@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心燈引渡｜普慶禪修班</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#e3b25e;
+    --gold-soft:#f2d9a8;
+    --ember:#c0392b;
+    --ember-deep:#8e271b;
+    --ink:#2c2014;
+  }
+  [data-theme="night"]{
+    --sky-top:#0a1426;
+    --sky-mid:#163a63;
+    --sky-bottom:#050a14;
+    --text-primary:#f4ead9;
+    --text-secondary:#9fb0c6;
+    --ground:#040810;
+    --celestial-fill:#f4ead9;
+    --celestial-glow:rgba(244,234,217,0.55);
+  }
+  [data-theme="day"]{
+    --sky-top:#4f97c9;
+    --sky-mid:#8fc3dd;
+    --sky-bottom:#d9ecea;
+    --text-primary:#1c2b3a;
+    --text-secondary:#3d5468;
+    --ground:#26333a;
+    --celestial-fill:#fff3d6;
+    --celestial-glow:rgba(255,219,140,0.7);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:'Noto Sans TC',sans-serif}
+  body{overflow:hidden;background:#000}
+
+  .stage{
+    position:relative;
+    width:100vw;height:100vh;
+    background:linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-bottom) 100%);
+    overflow:hidden;
+    transition:background 1.2s ease;
+  }
+
+  .celestial{
+    position:absolute; top:7%; left:50%;
+    width:90px; height:90px; border-radius:50%;
+    background:var(--celestial-fill);
+    box-shadow:0 0 70px 30px var(--celestial-glow);
+    transition:background 1.2s ease, box-shadow 1.2s ease;
+  }
+  [data-theme="night"] .celestial::after{
+    content:"";
+    position:absolute; top:8px; left:18px;
+    width:70px; height:70px; border-radius:50%;
+    background:var(--sky-top);
+    box-shadow:0 0 0 var(--sky-top);
+  }
+
+  .stars{position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease}
+  [data-theme="night"] .stars{opacity:1}
+  .star{position:absolute; background:#fff; border-radius:50%; animation:twinkle 3.5s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
+
+  .clouds{position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease; pointer-events:none}
+  [data-theme="day"] .clouds{opacity:1}
+  .cloud{position:absolute; background:#ffffff; border-radius:50px; opacity:.85; filter:blur(1px)}
+  .cloud::before, .cloud::after{content:""; position:absolute; background:#fff; border-radius:50%}
+
+  .ground-fade{
+    position:absolute; left:0; right:0; bottom:0; height:34%;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 0%, var(--ground) 92%);
+    z-index:3; pointer-events:none;
+  }
+
+  header.hud{
+    position:absolute; top:0; left:0; right:0; z-index:6;
+    padding:2.4rem 2rem 0; text-align:center;
+  }
+  .title-cjk{
+    font-family:'Noto Serif TC',serif; font-weight:700;
+    font-size:clamp(28px,4vw,46px); letter-spacing:.5rem;
+    color:var(--text-primary); margin:0;
+  }
+  .title-rule{width:70px;height:3px;background:var(--ember);margin:14px auto}
+  .couplet{
+    font-family:'Noto Serif TC',serif; font-size:clamp(13px,1.4vw,16px);
+    color:var(--text-secondary); line-height:1.9; margin:0;
+  }
+  .counter{margin-top:14px; font-size:clamp(13px,1.3vw,15px); color:var(--text-secondary)}
+  .counter b{color:var(--ember); font-size:1.15em; font-weight:700}
+
+  .theme-toggle{
+    position:absolute; top:1.6rem; left:1.6rem; z-index:7;
+    display:flex; align-items:center; gap:8px;
+    background:rgba(0,0,0,0.18); border:1px solid rgba(255,255,255,0.25);
+    border-radius:999px; padding:7px 14px; cursor:pointer;
+    color:var(--text-primary); font-size:12px; user-select:none;
+    backdrop-filter:blur(4px);
+  }
+  .theme-toggle svg{width:14px;height:14px}
+
+  .cta-light{
+    position:absolute; top:1.8rem; right:1.8rem; z-index:7;
+    width:92px; height:92px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--ember) 0%, var(--ember-deep) 100%);
+    color:#fff; border:none; cursor:pointer;
+    font-family:'Noto Sans TC',sans-serif; font-weight:700; font-size:15px; line-height:1.4;
+    box-shadow:0 6px 18px rgba(0,0,0,0.35);
+    transition:transform .25s ease;
+  }
+  .cta-light:hover{transform:scale(1.06)}
+
+  .scene{position:absolute; inset:0; z-index:4}
+  .figures{position:absolute; bottom:0; left:0; right:0; height:46%; z-index:3}
+  .figure{position:absolute; bottom:0}
+
+  @keyframes riseUp{
+    0%{ top:88%; opacity:0; }
+    8%{ opacity:1; }
+    88%{ opacity:1; }
+    100%{ top:-26%; opacity:0; }
+  }
+  @keyframes swayA{0%,100%{transform:translateX(-16px) rotate(-3deg)}50%{transform:translateX(16px) rotate(3deg)}}
+  @keyframes swayB{0%,100%{transform:translateX(14px) rotate(3deg)}50%{transform:translateX(-14px) rotate(-3deg)}}
+
+  /* ---------- page 2 : 發願表單 ---------- */
+  .form-page{
+    position:fixed; inset:0; z-index:20; display:none;
+    background:linear-gradient(180deg,#0d1b2e 0%, #050a14 100%);
+    color:var(--text-primary,#f4ead9);
+    overflow-y:auto;
+  }
+  .form-wrap{max-width:480px; margin:0 auto; padding:3.2rem 1.6rem 4rem}
+  .back-link{font-size:13px; color:#9fb0c6; cursor:pointer; margin-bottom:1.6rem; display:inline-block}
+  .form-title{font-family:'Noto Serif TC',serif; font-weight:700; font-size:26px; letter-spacing:4px; color:#f0deb4; text-align:center}
+  .form-rule{width:56px;height:3px;background:var(--ember);margin:14px auto}
+  .form-sub{font-family:'Noto Serif TC',serif; font-size:14px; color:#b8c4d6; text-align:center; margin-bottom:2.2rem}
+  .field-label{font-size:13px; color:#cfd8e3; margin-bottom:8px}
+  .field-input{width:100%; height:44px; border-radius:10px; border:none; padding:0 14px; background:#fff; color:#222; font-size:15px; font-family:'Noto Sans TC',sans-serif; margin-bottom:1.4rem}
+  .wish-row{display:flex; align-items:center; gap:12px; background:#16263d; border-radius:10px; padding:12px 16px; cursor:pointer; margin-bottom:9px}
+  .wish-dot{width:18px;height:18px;border-radius:50%;border:2px solid #8fa0b8;flex-shrink:0}
+  .wish-row span.label{font-size:15px}
+  .submit-btn{width:100%; height:50px; border-radius:10px; border:none; background:var(--ember); color:#fff; font-size:16px; font-weight:700; margin-top:1.6rem; cursor:pointer; font-family:'Noto Sans TC',sans-serif}
+  .submit-btn:hover{background:var(--ember-deep)}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage" data-theme="night">
+  <div class="stars" id="stars"></div>
+  <div class="clouds" id="clouds"></div>
+  <div class="celestial"></div>
+  <div class="ground-fade"></div>
+
+  <div class="theme-toggle" id="themeToggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+    <span id="themeLabel">切換為白天</span>
+  </div>
+
+  <button class="cta-light" id="goBtn">我要<br>點燈</button>
+
+  <header class="hud">
+    <p class="title-cjk">心燈引渡</p>
+    <div class="title-rule"></div>
+    <p class="couplet">一燈引路，渡得一人　願以此心，廣結善緣</p>
+    <p class="counter">現在已發願渡人：<b id="lampCount">1,286</b> 願</p>
+  </header>
+
+  <div class="scene" id="scene"></div>
+
+  <div class="figures">
+    <div class="figure" id="maleFigure" style="left:30%"></div>
+    <div class="figure" id="femaleFigure" style="left:56%"></div>
+  </div>
+</div>
+
+<div class="form-page" id="page2">
+  <div class="form-wrap">
+    <span class="back-link" id="backLink">← 返回</span>
+    <p class="form-title">發願渡人</p>
+    <div class="form-rule"></div>
+    <p class="form-sub">願以一燈，照亮一人</p>
+
+    <div class="field-label">我的姓名（已在精舍學員）</div>
+    <input class="field-input" type="text" placeholder="請輸入您的姓名">
+
+    <div class="field-label">想渡的朋友姓名（尚未上課）</div>
+    <input class="field-input" type="text" placeholder="請輸入朋友姓名">
+
+    <div class="field-label" style="margin-bottom:12px">渡人心願</div>
+    <div id="wishlist"></div>
+
+    <button class="submit-btn" id="submitBtn">送出願力</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var stage = document.getElementById('stage');
+
+  /* ---------- 白天／黑夜判斷 ---------- */
+  function detectTheme(){
+    var h = new Date().getHours();
+    return (h >= 6 && h < 18) ? 'day' : 'night';
+  }
+  function setTheme(t){
+    stage.setAttribute('data-theme', t);
+    document.getElementById('themeLabel').textContent = t === 'day' ? '切換為夜晚' : '切換為白天';
+  }
+  setTheme(detectTheme());
+  document.getElementById('themeToggle').onclick = function(){
+    setTheme(stage.getAttribute('data-theme') === 'day' ? 'night' : 'day');
+  };
+
+  /* ---------- 星星 ---------- */
+  var starsEl = document.getElementById('stars');
+  for (var i=0;i<70;i++){
+    var s = document.createElement('div');
+    var size = (Math.random()*2+1).toFixed(1);
+    s.className = 'star';
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    s.style.left = (Math.random()*100)+'%';
+    s.style.top = (Math.random()*55)+'%';
+    s.style.animationDelay = (Math.random()*3.5)+'s';
+    starsEl.appendChild(s);
+  }
+
+  /* ---------- 雲 ---------- */
+  var cloudsEl = document.getElementById('clouds');
+  var cloudDefs = [
+    {top:'10%', w:140, h:34, dur:70},
+    {top:'18%', w:100, h:26, dur:90},
+    {top:'7%',  w:170, h:40, dur:60}
+  ];
+  cloudDefs.forEach(function(c, idx){
+    var el = document.createElement('div');
+    el.className = 'cloud';
+    el.style.top = c.top;
+    el.style.width = c.w+'px';
+    el.style.height = c.h+'px';
+    el.style.left = '-220px';
+    el.style.animation = 'driftCloud '+c.dur+'s linear infinite';
+    el.style.animationDelay = (idx*-20)+'s';
+    cloudsEl.appendChild(el);
+  });
+  var sheet = document.createElement('style');
+  sheet.textContent =
+    '@keyframes driftCloud{0%{transform:translateX(0)}100%{transform:translateX(135vw)}}' +
+    '.cloud::before{width:55%;height:140%;top:-45%;left:8%}' +
+    '.cloud::after{width:45%;height:120%;top:-35%;left:48%}';
+  document.head.appendChild(sheet);
+
+  /* ---------- SVG 工具 ---------- */
+  var ns = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent){
+    var e = document.createElementNS(ns, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  /* ---------- 天燈（單色） ---------- */
+  var lanternPalette = [
+    {fill:'#f5d36b', ink:'#3a2a18'},
+    {fill:'#f0a96e', ink:'#3a2210'},
+    {fill:'#f08fae', ink:'#3a1c28'},
+    {fill:'#8fd6c4', ink:'#173730'},
+    {fill:'#9ecbef', ink:'#15324a'},
+    {fill:'#c9a8e8', ink:'#2c1d44'},
+    {fill:'#f2efe3', ink:'#332b1a'},
+    {fill:'#e8745a', ink:'#3a160c'}
+  ];
+
+  function lanternSVG(swatch, text){
+    var svg = el('svg', {viewBox:"0 0 70 110", width:"86", height:"135"});
+    var bodyPath = "M 10 14 Q 6 42 14 70 L 14 90 Q 35 100 56 90 L 56 70 Q 64 42 60 14 Q 35 4 10 14 Z";
+    el('path', {d:bodyPath, fill:swatch.fill}, svg);
+    el('path', {d:"M 14 70 L 14 90 Q 35 100 56 90 L 56 70 Z", fill:"#000", opacity:"0.06"}, svg);
+    el('path', {d:bodyPath, fill:"none", stroke:"rgba(255,255,255,0.45)", "stroke-width":"1"}, svg);
+
+    var maxPerCol = 6;
+    var chars = text.split('');
+    var cols = [];
+    for (var i=0;i<chars.length;i+=maxPerCol){ cols.push(chars.slice(i, i+maxPerCol)); }
+    cols.forEach(function(colChars, ci){
+      var x = 44 - ci*16;
+      colChars.forEach(function(ch, ri){
+        var t = el('text', {x:String(x), y:String(26+ri*10), "text-anchor":"middle", "font-size":"9", "font-family":"'Noto Serif TC',serif", fill:swatch.ink}, svg);
+        t.textContent = ch;
+      });
+    });
+
+    el('ellipse', {cx:"35", cy:"91", rx:"21", ry:"4", fill:"none", stroke:"#8a6a3a", "stroke-width":"2"}, svg);
+    var flame = el('circle', {cx:"35", cy:"96", r:"6", fill:"#ffb454"}, svg);
+    flame.style.filter = "drop-shadow(0 0 9px rgba(255,180,84,0.9))";
+    svg.style.filter = "drop-shadow(0 0 8px rgba(255,180,84,0.4))";
+    return svg;
+  }
+
+  /* ---------- 學員人物 ---------- */
+  function discipleSVG(isFemale, raiseDir, scale){
+    var svg = el('svg', {viewBox:"0 0 60 100", width:String(60*scale), height:String(100*scale)});
+    var g = el('g', {}, svg);
+    el('circle', {cx:"30", cy:"15", r:"10", fill:"#d8b88a"}, g);
+    if (isFemale){
+      el('path', {d:"M 19 10 Q 19 -2 30 -2 Q 41 -2 41 10 L 43 34 L 38 34 L 36 16 L 24 16 L 22 34 L 17 34 Z", fill:"#241c12"}, g);
+    } else {
+      el('path', {d:"M 20 10 Q 20 -2 30 -2 Q 40 -2 40 10 Q 35 5 30 5 Q 25 5 20 10 Z", fill:"#241c12"}, g);
+    }
+    el('path', {d:"M 17 23 Q 14 55 20 78 L 40 78 Q 46 55 43 23 Q 37 29 30 29 Q 23 29 17 23 Z", fill:"#9aa0a6"}, g);
+    el('path', {d:"M 22 23 Q 30 31 38 23", fill:"none", stroke:"#7a7f85", "stroke-width":"2"}, g);
+    if (raiseDir === "right"){
+      el('path', {d:"M 36 26 Q 50 14 58 -6", fill:"none", stroke:"#9aa0a6", "stroke-width":"7.5", "stroke-linecap":"round"}, g);
+      el('path', {d:"M 22 28 Q 14 42 18 56", fill:"none", stroke:"#9aa0a6", "stroke-width":"7.5", "stroke-linecap":"round"}, g);
+    } else {
+      el('path', {d:"M 24 26 Q 10 14 2 -6", fill:"none", stroke:"#9aa0a6", "stroke-width":"7.5", "stroke-linecap":"round"}, g);
+      el('path', {d:"M 38 28 Q 46 42 42 56", fill:"none", stroke:"#9aa0a6", "stroke-width":"7.5", "stroke-linecap":"round"}, g);
+    }
+    el('rect', {x:"21", y:"76", width:"8", height:"20", rx:"3", fill:"#888d92"}, g);
+    el('rect', {x:"31", y:"76", width:"8", height:"20", rx:"3", fill:"#888d92"}, g);
+    el('ellipse', {cx:"25", cy:"97", rx:"7", ry:"4", fill:"#ece4d2"}, g);
+    el('ellipse', {cx:"35", cy:"97", rx:"7", ry:"4", fill:"#ece4d2"}, g);
+    return svg;
+  }
+
+  var maleHolder = document.getElementById('maleFigure');
+  var femaleHolder = document.getElementById('femaleFigure');
+  maleHolder.appendChild(discipleSVG(false, 'right', 2.1));
+  femaleHolder.appendChild(discipleSVG(true, 'left', 2.1));
+  maleHolder.style.bottom = '0';
+  femaleHolder.style.bottom = '0';
+
+  /* ---------- 天燈生成 ---------- */
+  var scene = document.getElementById('scene');
+  var xSlots = [8, 20, 33, 46, 59, 72, 85, 14, 39, 65, 92, 27];
+
+  var entries = [
+    {a:"陳同學", b:"林小姐", w:"善根增長"},
+    {a:"王學員", b:"李先生", w:"家庭和樂"},
+    {a:"張同學", b:"黃小姐", w:"智慧開啟"},
+    {a:"吳學員", b:"周先生", w:"法喜充滿"},
+    {a:"蔡同學", b:"許小姐", w:"業障消除"},
+    {a:"林學員", b:"楊先生", w:"身心安定"}
+  ];
+
+  var spawnIdx = 0, entryIdx = 0, counter = 1286;
+  var countEl = document.getElementById('lampCount');
+
+  function spawnLantern(){
+    var entry = entries[entryIdx % entries.length];
+    var swatch = lanternPalette[entryIdx % lanternPalette.length];
+    var x = xSlots[spawnIdx % xSlots.length];
+    var duration = 13 + (spawnIdx % 5) * 1.4;
+    var swayClass = (spawnIdx % 2 === 0) ? 'swayA' : 'swayB';
+    var text = entry.a + "願渡" + entry.b + entry.w;
+
+    var wrap = document.createElement('div');
+    wrap.style.position = 'absolute';
+    wrap.style.left = x + '%';
+    wrap.style.top = '88%';
+    wrap.style.zIndex = '5';
+    wrap.style.animation = 'riseUp '+duration+'s linear forwards, '+swayClass+' '+(3+(spawnIdx%3)*0.5)+'s ease-in-out infinite';
+    wrap.appendChild(lanternSVG(swatch, text));
+    scene.appendChild(wrap);
+
+    setTimeout(function(){ wrap.remove(); }, duration*1000 + 150);
+
+    counter += 1;
+    countEl.textContent = counter.toLocaleString();
+    spawnIdx++;
+    entryIdx++;
+  }
+  for (var i=0;i<5;i++){ (function(i){ setTimeout(spawnLantern, i*1100); })(i); }
+  setInterval(spawnLantern, 1650);
+
+  /* ---------- 渡人心願選項 ---------- */
+  var wishes = ["身心安定","善根增長","家庭和樂","智慧開啟","業障消除","法喜充滿"];
+  var wl = document.getElementById('wishlist');
+  wishes.forEach(function(w){
+    var row = document.createElement('div');
+    row.className = 'wish-row';
+    var dot = document.createElement('span');
+    dot.className = 'wish-dot';
+    var label = document.createElement('span');
+    label.className = 'label';
+    label.textContent = w;
+    row.appendChild(dot);
+    row.appendChild(label);
+    row.onclick = function(){
+      Array.prototype.forEach.call(wl.children, function(r){
+        r.firstChild.style.background = 'transparent';
+        r.firstChild.style.borderColor = '#8fa0b8';
+      });
+      dot.style.background = '#c0392b';
+      dot.style.borderColor = '#c0392b';
+    };
+    wl.appendChild(row);
+  });
+
+  /* ---------- 頁面切換 ---------- */
+  var page2 = document.getElementById('page2');
+  document.getElementById('goBtn').onclick = function(){ page2.style.display = 'block'; };
+  document.getElementById('backLink').onclick = function(){ page2.style.display = 'none'; };
+  document.getElementById('submitBtn').onclick = function(){
+    alert('感謝您的發願！（此為原型示範，尚未連接後台資料庫）');
+  };
+})();
+</script>
+</body>
+</html>
