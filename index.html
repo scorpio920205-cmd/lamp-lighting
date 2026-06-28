@@ -224,8 +224,40 @@
   </div>
 </div>
 
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
 <script>
 (function(){
+  // ====== Firebase 整合設定 ======
+  // 請將此處的配置替換為您的 Firebase 專案金鑰與 Database URL
+  var firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  var db = null;
+  var isFirebaseActive = false;
+
+  try {
+    if (firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.apiKey !== "") {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      isFirebaseActive = true;
+      console.log("Firebase initialized successfully.");
+    } else {
+      console.warn("Firebase config has default placeholder values. Falling back to local mock data.");
+    }
+  } catch (e) {
+    console.error("Firebase initialization failed: ", e);
+  }
+
   var stage = document.getElementById('stage');
 
   /* ---------- 白天／黑夜判斷 ---------- */
@@ -365,7 +397,7 @@
   var scene = document.getElementById('scene');
   var xSlots = [8, 20, 33, 46, 59, 72, 85, 14, 39, 65, 92, 27];
 
-  var entries = [
+  var defaultEntries = [
     {a:"陳同學", b:"林小姐", w:"身體健康"},
     {a:"王學員", b:"李先生", w:"家庭和樂"},
     {a:"張同學", b:"黃小姐", w:"道業成就"},
@@ -373,12 +405,41 @@
     {a:"蔡同學", b:"許小姐", w:"事業順利"},
     {a:"林學員", b:"楊先生", w:"廣結善緣"}
   ];
+  var firebaseEntries = [];
 
   var spawnIdx = 0, entryIdx = 0, counter = 1286;
   var countEl = document.getElementById('lampCount');
 
+  // 如果 Firebase 已連線，開始監聽資料庫
+  if (isFirebaseActive && db) {
+    db.ref('wishes').orderByChild('timestamp').limitToLast(100).on('value', function(snapshot) {
+      var data = snapshot.val();
+      if (data) {
+        var temp = [];
+        Object.keys(data).forEach(function(key) {
+          temp.push(data[key]);
+        });
+        // 依發願時間排序（舊到新輪流播放）
+        temp.sort(function(a, b) { return (a.timestamp || 0) - (b.timestamp || 0); });
+        firebaseEntries = temp;
+      }
+    });
+
+    // 監聽發願總筆數更新計數器
+    db.ref('wishes').on('value', function(snapshot) {
+      var totalWishes = snapshot.numChildren();
+      counter = 1286 + totalWishes;
+      countEl.textContent = counter.toLocaleString();
+    });
+  }
+
   function spawnLantern(){
-    var entry = entries[entryIdx % entries.length];
+    var entry;
+    if (isFirebaseActive && firebaseEntries.length > 0) {
+      entry = firebaseEntries[entryIdx % firebaseEntries.length];
+    } else {
+      entry = defaultEntries[entryIdx % defaultEntries.length];
+    }
     var swatch = lanternPalette[entryIdx % lanternPalette.length];
     var x = xSlots[spawnIdx % xSlots.length];
     var duration = 13 + (spawnIdx % 5) * 1.4;
@@ -396,8 +457,11 @@
 
     setTimeout(function(){ wrap.remove(); }, duration*1000 + 150);
 
-    counter += 1;
-    countEl.textContent = counter.toLocaleString();
+    // 如果沒有連線 Firebase，則使用前端本地的計數遞增
+    if (!isFirebaseActive) {
+      counter += 1;
+      countEl.textContent = counter.toLocaleString();
+    }
     spawnIdx++;
     entryIdx++;
   }
@@ -451,7 +515,77 @@
   document.getElementById('goBtn').onclick = function(){ page2.style.display = 'block'; };
   document.getElementById('backLink').onclick = function(){ page2.style.display = 'none'; };
   document.getElementById('submitBtn').onclick = function(){
-    alert('感謝您的發願！（此為原型示範，尚未連接後台資料庫）');
+    var myName = document.querySelector('input[placeholder="請輸入您的姓名"]').value.trim();
+    var friendName = document.querySelector('input[placeholder="請輸入朋友姓名"]').value.trim();
+    
+    // 獲取選擇的心願
+    var selectedWish = null;
+    Array.prototype.forEach.call(wl.children, function(r){
+      if (r.firstChild.style.background === 'rgb(192, 57, 43)' || r.firstChild.style.background === '#c0392b') {
+        selectedWish = r.querySelector('.label').textContent;
+      }
+    });
+
+    if (!myName || !friendName) {
+      alert('請填寫您與朋友的姓名！');
+      return;
+    }
+    if (!selectedWish) {
+      alert('請選擇一個渡人心願！');
+      return;
+    }
+
+    if (isFirebaseActive && db) {
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '傳送願力中...';
+
+      db.ref('wishes').push({
+        a: myName,
+        b: friendName,
+        w: selectedWish,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      }).then(function() {
+        alert('您的願力心燈已成功飄升！');
+        page2.style.display = 'none';
+        // 清空輸入
+        document.querySelector('input[placeholder="請輸入您的姓名"]').value = '';
+        document.querySelector('input[placeholder="請輸入朋友姓名"]').value = '';
+        Array.prototype.forEach.call(wl.children, function(r){ r.firstChild.style.background = '#c9ccd1'; });
+        btn.disabled = false;
+        btn.textContent = '送出願力';
+      }).catch(function(error) {
+        console.error("Firebase error: ", error);
+        alert('送出失敗，請檢查網路連線或 Firebase 配置！');
+        btn.disabled = false;
+        btn.textContent = '送出願力';
+      });
+    } else {
+      // 預覽模式
+      alert('【預覽模式】感謝您的發願！姓名：' + myName + '，渡朋友：' + friendName + '，心願：' + selectedWish);
+      
+      // 本地飛出天燈效果
+      var mockEntry = {a: myName, b: friendName, w: selectedWish};
+      var swatch = lanternPalette[Math.floor(Math.random() * lanternPalette.length)];
+      var x = 40 + Math.random() * 20;
+      var text = mockEntry.a + "願渡" + mockEntry.b + mockEntry.w;
+      var wrap = document.createElement('div');
+      wrap.style.position = 'absolute';
+      wrap.style.left = x + '%';
+      wrap.style.top = '88%';
+      wrap.style.zIndex = '5';
+      wrap.style.animation = 'riseUp 14s linear forwards, swayA 3.5s ease-in-out infinite';
+      wrap.appendChild(lanternSVG(swatch, text));
+      scene.appendChild(wrap);
+      
+      counter += 1;
+      countEl.textContent = counter.toLocaleString();
+
+      page2.style.display = 'none';
+      document.querySelector('input[placeholder="請輸入您的姓名"]').value = '';
+      document.querySelector('input[placeholder="請輸入朋友姓名"]').value = '';
+      Array.prototype.forEach.call(wl.children, function(r){ r.firstChild.style.background = '#c9ccd1'; });
+    }
   };
 })();
 </script>

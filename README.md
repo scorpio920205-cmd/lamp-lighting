@@ -23,10 +23,10 @@
 
 ### 2. 視覺設計與資源整合
 - **精美實景背景**：
-  - **夜晚背景**（`assets/night-bg.png`）：融合精舍夜景建築、綠色草地、璀璨星空以及人物側影，大樹已更換為圓滿厚實的樹木範本，右上角疊加柔和發光的月亮。
-  - **白天背景**（`assets/day-bg.jpg`）：以精舍白天實景與自然光線為基調，融合相同的大樹與草地，關閉了多餘的合成太陽與雲朵，視覺更顯自然真實。
+  - **夜晚背景**（`assets/night-bg.png`）：直接使用您提供的 `精舍夜景實景圖.png` 作為夜晚背景（融合夜景、星空與人物），月亮疊在右上角。
+  - **白天背景**（`assets/day-bg.jpg`）：直接使用您提供的 `白天的精舍.jpg` 作為白天背景，讓精舍在日光下的風貌自然呈現。
 - **直書天燈與配色**：天燈提供鵝黃、橘、粉、薄荷綠、天藍、淺紫、米白、珊瑚紅等柔和色系，天燈內文字使用優雅的 `Noto Serif TC` 字體直書呈現。
-- **流暢動畫**：包含天燈隨機左右擺動升起（Swaying & Rising）與微小的火焰閃爍濾鏡。
+- **流暢動畫**：包含天燈隨機左右擺動升起（Swaying & Rising）與微小的火焰閃爍與發光濾鏡。
 
 ---
 
@@ -62,9 +62,13 @@
 ### 目前版本 (Version 2.0 - 本次更新)
 - **根目錄結構重組**：將主網頁 `index.html` 移至根目錄，方便 GitHub Pages 直接讀取託管。
 - **白天實景背景支援**：
-  - 合成了專屬的 `assets/day-bg.jpg` 與 `assets/night-bg.png`，完成「樹的範本」與「精舍實景」的無縫銜接。
-  - 優化 CSS，加入 `[data-theme="day"] .stage` 以正確載入白天背景圖。
-  - 當切換至白天時，自動隱藏多餘的網頁合成雲朵與太陽（`.celestial` / `.clouds`），讓實景照片的光線顯得更為自然。
+  - 直接使用您最真實的原始照片：`assets/day-bg.jpg`（白天精舍）與 `assets/night-bg.png`（夜晚精舍）。
+  - 優化 CSS，加入 `[data-theme="day"] .stage` 以正確載入白天實景背景。
+  - 當切換至白天時，自動隱藏多餘的網頁合成雲朵與太陽（`.celestial` / `.clouds`），保留純淨實景。
+- **Firebase 資料庫串接**：
+  - 導入了 Firebase SDK，架設好即時資料庫 (Realtime Database) 的連接通道。
+  - 支援「自動同步累計願力筆數」與「後台資料庫即時拉取發願名單播放」功能。
+  - 頁面二表單送出後，資料將直通您的 Firebase 資料庫，並在前端同步飄升新天燈。
 - **說明文件補全**：建立本 `README.md`，方便團隊交接與後續部署。
 
 ---
@@ -120,10 +124,55 @@ git push -u origin main
 
 ---
 
-## 下一步開發建議 (Future Roadmap)
+## Firebase 即時資料庫 (Realtime Database) 設定指引
 
-1. **後端與資料庫串接 (Firebase)**：
-   - 目前送出表單後為示範用 `alert`。下一步需連接 Firebase Realtime Database 或 Firestore。
-   - 將學員在表單送出的發願資料寫入資料庫，並讓 `index.html` 即時拉取真實數據播放，替換掉目前的靜態循環假資料。
-2. **直式螢幕投影微調**：
-   - 在實際投影幕或大電視上播放時，可依據觀看距離調整天燈上的字體大小（font-size）以利閱讀。
+本網頁已內建 Firebase 串接邏輯。若要正式啟用資料儲存與即時天燈同步，請依序設定：
+
+### 第一步：在 index.html 填入您的 Firebase 憑證
+打開 `index.html`，尋找程式碼中的 `var firebaseConfig`（大約在第 233 行），將裡面的預設佔位符替換成您自己的 Firebase 憑證：
+```javascript
+var firebaseConfig = {
+  apiKey: "您的 API 金鑰",
+  authDomain: "您的專案ID.firebaseapp.com",
+  databaseURL: "https://您的專案ID-default-rtdb.firebaseio.com",
+  projectId: "您的專案ID",
+  storageBucket: "您的專案ID.appspot.com",
+  messagingSenderId: "您的傳送者ID",
+  appId: "您的應用程式ID"
+};
+```
+*備註：若維持預設佔位符不改，系統會自動切換為「預覽模擬模式」，表單提交時會進行本地飛燈模擬，讓您在沒有資料庫時也能測試效果。*
+
+### 第二步：在 Firebase 控制台設定資料庫規則 (Database Rules)
+為了讓網頁能讀寫資料，您需要在 Firebase 的 **Realtime Database** 的 **Rules**（規則）分頁中，允許公開讀寫（或依安全需求設定規則）：
+```json
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+```
+
+### 第三步：資料結構
+當有人送出點燈表單時，網頁會自動在資料庫的 `wishes` 路徑下以如下結構新增資料：
+```json
+{
+  "wishes": {
+    "-Nxxxxx(自動生成的ID)": {
+      "a": "已在精舍學員姓名",
+      "b": "朋友姓名",
+      "w": "心願 (例如：身體健康)",
+      "timestamp": 1698293810239
+    }
+  }
+}
+```
+網頁端會自動監聽並讀取最新的 100 筆資料輪流播放，並且將 `1286` (基礎預設值) 加上資料庫中實際的願力筆數，作為大門口展示的總願力數字。
+
+---
+
+## 其他開發微調建議
+
+1. **直式螢幕投影微調**：
+   - 在實際投影幕或電視上播放時，可依據觀看距離調整天燈上的字體大小（font-size）以利閱讀。
