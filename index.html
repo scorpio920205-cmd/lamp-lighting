@@ -6,7 +6,7 @@
 <title>心燈引渡｜普慶禪修班</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 <style>
   :root{
     --gold:#e3b25e;
@@ -424,7 +424,7 @@
   }
 
   function lanternSVG(swatch, entry){
-    var svg = el('svg', {viewBox:"0 0 140 240", width:"160", height:"272"});
+    var svg = el('svg', {viewBox:"0 0 160 320", width:"160", height:"320"});
     
     var gradId = "grad-" + Math.random().toString(36).substr(2, 9);
     var defs = el('defs', {}, svg);
@@ -433,13 +433,32 @@
     var radGrad = el('radialGradient', {
       id: gradId,
       cx: "50%",
-      cy: "85%",
-      r: "65%"
+      cy: "40%",
+      r: "60%"
     }, defs);
     el('stop', {offset: "0%", "stop-color": "#ffffff"}, radGrad);
-    el('stop', {offset: "20%", "stop-color": "#fffceb"}, radGrad);
-    el('stop', {offset: "60%", "stop-color": swatch.fill}, radGrad);
+    el('stop', {offset: "25%", "stop-color": "#fffceb"}, radGrad);
+    el('stop', {offset: "65%", "stop-color": swatch.fill}, radGrad);
     el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 25)}, radGrad);
+
+    // 金屬金色漸變定義 (用於頂蓋與蓮花底座)
+    var goldGrad = el('linearGradient', {
+      id: "gold-" + gradId,
+      x1: "0%", y1: "0%", x2: "100%", y2: "0%"
+    }, defs);
+    el('stop', {offset: "0%", "stop-color": "#a87a18"}, goldGrad);
+    el('stop', {offset: "30%", "stop-color": "#ffd700"}, goldGrad);
+    el('stop', {offset: "50%", "stop-color": "#fff8dc"}, goldGrad);
+    el('stop', {offset: "70%", "stop-color": "#ffd700"}, goldGrad);
+    el('stop', {offset: "100%", "stop-color": "#a87a18"}, goldGrad);
+
+    var goldGradDark = el('linearGradient', {
+      id: "gold-dark-" + gradId,
+      x1: "0%", y1: "0%", x2: "100%", y2: "0%"
+    }, defs);
+    el('stop', {offset: "0%", "stop-color": "#5e4104"}, goldGradDark);
+    el('stop', {offset: "50%", "stop-color": "#a87a18"}, goldGradDark);
+    el('stop', {offset: "100%", "stop-color": "#5e4104"}, goldGradDark);
 
     // 紙紋濾鏡 (Paper Texture Filter)
     var paperFilter = el('filter', {id: "paper-tex-" + gradId}, defs);
@@ -448,60 +467,190 @@
     el('feComposite', {operator: "in", in: "colorNoise", in2: "SourceGraphic", result: "composite"}, paperFilter);
     el('feBlend', {mode: "multiply", in: "SourceGraphic", in2: "composite"}, paperFilter);
 
-    // 天燈本體：梯形向上張開的傳統紙燈造型，套用紙紋濾鏡
-    var bodyPath = "M 35 25 C 20 60, 42 110, 42 110 Q 70 115 98 110 C 98 110, 120 60, 105 25 Q 70 10 35 25 Z";
-    el('path', {d:bodyPath, fill:"url(#" + gradId + ")", filter:"url(#paper-tex-" + gradId + ")"}, svg);
-    el('path', {d:bodyPath, fill:"none", stroke:"rgba(255,255,255,0.45)", "stroke-width":"1.2"}, svg);
+    // --- 燈籠本體 ---
+    // 1. 頂部裝飾金屬蓋與火焰裝飾
+    // 火焰裝飾
+    el('path', {
+      d: "M 80 73 Q 77.5 80 80 84 Q 82.5 80 80 73 Z",
+      fill: "url(#gold-" + gradId + ")"
+    }, svg);
+    // 頂蓋
+    el('path', {
+      d: "M 70 84 C 70 81, 90 81, 90 84 L 86 91 L 74 91 Z",
+      fill: "url(#gold-" + gradId + ")"
+    }, svg);
 
-    // 清晰的直向摺線細節 (立體摺痕)
+    // 2. 圓形燈體 (套用紙紋濾鏡)
+    var bodyGroup = el('g', { filter: "url(#paper-tex-" + gradId + ")" }, svg);
+    
+    // 主圓形橢圓
+    el('ellipse', {
+      cx: "80", cy: "136", rx: "36", ry: "45",
+      fill: "url(#" + gradId + ")",
+      stroke: "rgba(255,255,255,0.35)",
+      "stroke-width": "1"
+    }, bodyGroup);
+
+    // 立體摺痕線條
+    // 內左摺線
+    el('path', {
+      d: "M 80 91 Q 66 136 80 181",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.16",
+      "stroke-width": "1.2"
+    }, bodyGroup);
+    // 外左摺線
+    el('path', {
+      d: "M 80 91 Q 52 136 80 181",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.14",
+      "stroke-width": "1"
+    }, bodyGroup);
+    // 內右摺線
+    el('path', {
+      d: "M 80 91 Q 94 136 80 181",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.16",
+      "stroke-width": "1.2"
+    }, bodyGroup);
+    // 外右摺線
+    el('path', {
+      d: "M 80 91 Q 108 136 80 181",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.14",
+      "stroke-width": "1"
+    }, bodyGroup);
     // 中線
-    el('path', {d:"M 70 12 L 70 110", fill:"none", stroke:"rgba(0,0,0,0.08)", "stroke-width":"1"}, svg);
-    el('path', {d:"M 71 12 L 71 110", fill:"none", stroke:"rgba(255,255,255,0.18)", "stroke-width":"0.8"}, svg);
-    // 左褶線
-    el('path', {d:"M 48 20 Q 56 65 54 107", fill:"none", stroke:"rgba(0,0,0,0.07)", "stroke-width":"1"}, svg);
-    el('path', {d:"M 49 20 Q 57 65 55 107", fill:"none", stroke:"rgba(255,255,255,0.15)", "stroke-width":"0.8"}, svg);
-    // 右褶線
-    el('path', {d:"M 92 20 Q 84 65 86 107", fill:"none", stroke:"rgba(0,0,0,0.07)", "stroke-width":"1"}, svg);
-    el('path', {d:"M 91 20 Q 83 65 85 107", fill:"none", stroke:"rgba(255,255,255,0.15)", "stroke-width":"0.8"}, svg);
+    el('path', {
+      d: "M 80 91 L 80 181",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.12",
+      "stroke-width": "1"
+    }, bodyGroup);
 
-    // 底部微小火源 (燭火/燈芯透出的暖光)
-    el('ellipse', {cx:"70", cy:"108", rx:"4.5", ry:"5", fill:"#fffae0", opacity:"0.95"}, svg);
-    el('path', {d:"M 67.5 108 Q 70 96 70 96 Q 70 96 72.5 108 Z", fill:"#ff6600", opacity:"0.8"}, svg);
-
-    // 燈底竹編/鐵圈雙框 (Woven Bamboo Frame)
-    el('ellipse', {cx:"70", cy:"110", rx:"28", ry:"4", fill:"none", stroke:"#7d5d36", "stroke-width":"1.8"}, svg);
-    el('ellipse', {cx:"70", cy:"111.2", rx:"28", ry:"3.6", fill:"none", stroke:"#4e371b", "stroke-width":"1.2"}, svg);
-
-    // 天燈面文字 (兩行橫式字體)
+    // --- 燈面文字 (位置不變，在燈身上，寫法不變) ---
     // 第一行：姓名 + 發願度
-    var t1 = el('text', {x:"70", y:"53", "text-anchor":"middle", "font-size":"10.5", "font-family":"'Noto Serif TC',serif", "font-weight":"700", fill:swatch.ink}, svg);
+    var t1 = el('text', {
+      x: "80", y: "126", 
+      "text-anchor": "middle", 
+      "font-size": "10.5", 
+      "font-family": "'Noto Serif TC', serif", 
+      "font-weight": "700", 
+      fill: swatch.ink
+    }, bodyGroup);
     t1.textContent = entry.a + " 發願度";
     
     // 第二行：想渡的朋友姓名
-    var t2 = el('text', {x:"70", y:"78", "text-anchor":"middle", "font-size":"13", "font-family":"'Noto Serif TC',serif", "font-weight":"800", fill:swatch.ink}, svg);
+    var t2 = el('text', {
+      x: "80", y: "151", 
+      "text-anchor": "middle", 
+      "font-size": "13", 
+      "font-family": "'Noto Serif TC', serif", 
+      "font-weight": "800", 
+      fill: swatch.ink
+    }, bodyGroup);
     t2.textContent = entry.b;
 
-    // 懸掛的渡人心願條幅 (祈福卡) - 寬度縮小 1/3
-    // 1. 懸吊線
-    el('line', {x1:"70", y1:"113", x2:"70", y2:"132", stroke:"#c7b28f", "stroke-width":"1.8"}, svg);
-    
-    // 2. 條幅背景 (寬度為 34px)
-    el('rect', {x:"53", y:"132", width:"34", height:"96", rx:"2", fill:"#fffdf8", stroke:"#e6dbc0", "stroke-width":"1"}, svg);
-    
-    // 3. 條幅上下紅邊裝飾
-    el('rect', {x:"53", y:"132", width:"34", height:"5", fill:"#c0392b", rx:"1"}, svg);
-    el('rect', {x:"53", y:"223", width:"34", height:"5", fill:"#c0392b", rx:"1"}, svg);
+    // 3. 蓮花底座 (雙層金屬蓮花瓣)
+    // 外層蓮花瓣 (較暗)
+    el('path', {
+      d: "M 48 184 C 44 175, 66 177, 68 193 Z",
+      fill: "url(#gold-dark-" + gradId + ")"
+    }, svg);
+    el('path', {
+      d: "M 112 184 C 116 175, 94 177, 92 193 Z",
+      fill: "url(#gold-dark-" + gradId + ")"
+    }, svg);
 
-    // 4. 直書心願文字
+    // 內層蓮花瓣 (較亮)
+    // 左瓣
+    el('path', {
+      d: "M 50 188 C 55 178, 71 180, 73 193 C 67 195, 56 193, 50 188 Z",
+      fill: "url(#gold-" + gradId + ")"
+    }, svg);
+    // 右瓣
+    el('path', {
+      d: "M 110 188 C 105 178, 89 180, 87 193 C 93 195, 104 193, 110 188 Z",
+      fill: "url(#gold-" + gradId + ")"
+    }, svg);
+    // 中瓣
+    el('path', {
+      d: "M 67 193 C 70 181, 90 181, 93 193 C 87 197, 73 197, 67 193 Z",
+      fill: "url(#gold-" + gradId + ")"
+    }, svg);
+
+    // 蓮花座托環
+    el('ellipse', {
+      cx: "80", cy: "194.5", rx: "19", ry: "3.2",
+      fill: "url(#gold-" + gradId + ")"
+    }, svg);
+    el('ellipse', {
+      cx: "80", cy: "197", rx: "15", ry: "2.8",
+      fill: "url(#gold-dark-" + gradId + ")"
+    }, svg);
+
+    // --- 懸掛條幅心願卡 ---
+    // 懸吊線
+    el('line', {
+      x1: "80", y1: "198", x2: "80", y2: "220",
+      stroke: "#b8860b", "stroke-width": "1.2"
+    }, svg);
+    // 紅色連接圓珠
+    el('circle', {
+      cx: "80", cy: "220", r: "3",
+      fill: "#c0392b"
+    }, svg);
+
+    // 條幅背景 (淡粉色, 燕尾底形)
+    el('path', {
+      d: "M 66 220 L 94 220 L 94 296 L 80 287 L 66 296 Z",
+      fill: "#ffd6e0", // 淡粉色背景底
+      stroke: "#c0392b", // 紅色邊框
+      "stroke-width": "1"
+    }, svg);
+
+    // 條幅內飾細紅線
+    el('path', {
+      d: "M 69 223 L 91 223 L 91 289 L 80 281 L 69 289 Z",
+      fill: "none",
+      stroke: "rgba(192, 57, 43, 0.4)",
+      "stroke-width": "0.8"
+    }, svg);
+
+    // 直書心願文字 (黑色毛筆字體 Ma Shan Zheng)
     var wishChars = entry.w.split('');
     wishChars.forEach(function(ch, idx) {
-      var ty = 153 + idx * 19;
-      var t = el('text', {x:"70", y:String(ty), "text-anchor":"middle", "font-size":"10.5", "font-family":"'Noto Serif TC',serif", "font-weight":"800", fill:"#c0392b"}, svg);
+      var ty = 237 + idx * 13;
+      var t = el('text', {
+        x: "80", y: String(ty), 
+        "text-anchor": "middle", 
+        "font-size": "10.5", 
+        "font-family": "'Ma Shan Zheng', 'Noto Serif TC', serif", 
+        "font-weight": "800", 
+        fill: "#000000" // 黑色毛筆字
+      }, svg);
       t.textContent = ch;
     });
 
+    // 條幅底部的吊繩與流蘇
+    el('line', {
+      x1: "80", y1: "287", x2: "80", y2: "297",
+      stroke: "#c0392b", "stroke-width": "1.2"
+    }, svg);
+    el('path', {
+      d: "M 78 297 L 75 311 M 80 297 L 80 314 M 82 297 L 85 311",
+      stroke: "#c0392b",
+      "stroke-width": "1.2",
+      "stroke-linecap": "round"
+    }, svg);
+
     // 融合真實燈籠光澤，產生發光光暈
-    svg.style.filter = "drop-shadow(0 0 16px " + swatch.fill + "cc)";
+    svg.style.filter = "drop-shadow(0 0 15px " + swatch.fill + "b3)";
 
     return svg;
   }
