@@ -433,31 +433,39 @@
     var radGrad = el('radialGradient', {
       id: gradId,
       cx: "50%",
-      cy: "40%",
+      cy: "45%",
       r: "60%"
     }, defs);
     el('stop', {offset: "0%", "stop-color": "#ffffff"}, radGrad);
-    el('stop', {offset: "25%", "stop-color": "#fffceb"}, radGrad);
-    el('stop', {offset: "65%", "stop-color": swatch.fill}, radGrad);
-    el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 25)}, radGrad);
+    el('stop', {offset: "20%", "stop-color": "#fffceb"}, radGrad);
+    el('stop', {offset: "60%", "stop-color": swatch.fill}, radGrad);
+    el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 20)}, radGrad);
 
-    // 金屬金色漸變定義 (用於頂蓋與蓮花底座)
+    // 金屬金色漸變定義 (用於頂底金屬圓筒蓋)
     var goldGrad = el('linearGradient', {
       id: "gold-" + gradId,
       x1: "0%", y1: "0%", x2: "100%", y2: "0%"
     }, defs);
-    el('stop', {offset: "0%", "stop-color": "#a87a18"}, goldGrad);
+    el('stop', {offset: "0%", "stop-color": "#b5873c"}, goldGrad);
     el('stop', {offset: "30%", "stop-color": "#ffd700"}, goldGrad);
     el('stop', {offset: "50%", "stop-color": "#fff8dc"}, goldGrad);
     el('stop', {offset: "70%", "stop-color": "#ffd700"}, goldGrad);
-    el('stop', {offset: "100%", "stop-color": "#a87a18"}, goldGrad);
+    el('stop', {offset: "100%", "stop-color": "#b5873c"}, goldGrad);
+
+    var goldGradLight = el('linearGradient', {
+      id: "gold-light-" + gradId,
+      x1: "0%", y1: "0%", x2: "100%", y2: "0%"
+    }, defs);
+    el('stop', {offset: "0%", "stop-color": "#ffd700"}, goldGradLight);
+    el('stop', {offset: "50%", "stop-color": "#ffffff"}, goldGradLight);
+    el('stop', {offset: "100%", "stop-color": "#ffd700"}, goldGradLight);
 
     var goldGradDark = el('linearGradient', {
       id: "gold-dark-" + gradId,
       x1: "0%", y1: "0%", x2: "100%", y2: "0%"
     }, defs);
     el('stop', {offset: "0%", "stop-color": "#5e4104"}, goldGradDark);
-    el('stop', {offset: "50%", "stop-color": "#a87a18"}, goldGradDark);
+    el('stop', {offset: "50%", "stop-color": "#b5873c"}, goldGradDark);
     el('stop', {offset: "100%", "stop-color": "#5e4104"}, goldGradDark);
 
     // 紙紋濾鏡 (Paper Texture Filter)
@@ -468,65 +476,94 @@
     el('feBlend', {mode: "multiply", in: "SourceGraphic", in2: "composite"}, paperFilter);
 
     // --- 燈籠本體 ---
-    // 1. 頂部裝飾金屬蓋與火焰裝飾
-    // 火焰裝飾
-    el('path', {
-      d: "M 80 73 Q 77.5 80 80 84 Q 82.5 80 80 73 Z",
-      fill: "url(#gold-" + gradId + ")"
-    }, svg);
-    // 頂蓋
-    el('path', {
-      d: "M 70 84 C 70 81, 90 81, 90 84 L 86 91 L 74 91 Z",
-      fill: "url(#gold-" + gradId + ")"
-    }, svg);
+    // 1. 頂部裝飾金屬圓筒蓋 (3D 效果)
+    el('rect', { x: "68", y: "81", width: "24", height: "7", fill: "url(#gold-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "81", rx: "12", ry: "2.2", fill: "url(#gold-light-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "88", rx: "12", ry: "2.2", fill: "url(#gold-dark-" + gradId + ")" }, svg);
 
     // 2. 圓形燈體 (套用紙紋濾鏡)
     var bodyGroup = el('g', { filter: "url(#paper-tex-" + gradId + ")" }, svg);
     
-    // 主圓形橢圓
+    // 主圓形橢圓 (接近圓形)
     el('ellipse', {
-      cx: "80", cy: "136", rx: "36", ry: "45",
+      cx: "80", cy: "136", rx: "42", ry: "44",
       fill: "url(#" + gradId + ")",
-      stroke: "rgba(255,255,255,0.35)",
+      stroke: "rgba(255,255,255,0.4)",
+      "stroke-width": "1.2"
+    }, bodyGroup);
+
+    // 祥雲背景裝飾 (浮水印效果)
+    // 左祥雲
+    el('path', {
+      d: "M 54 114 Q 50 114 48 118 Q 44 118 46 122 Q 50 124 54 122 Q 58 122 56 118 Z",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.14",
+      "stroke-width": "1"
+    }, bodyGroup);
+    // 右祥雲
+    el('path', {
+      d: "M 106 150 Q 110 150 112 154 Q 116 154 114 158 Q 110 160 106 158 Q 102 158 104 154 Z",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.14",
+      "stroke-width": "1"
+    }, bodyGroup);
+
+    // 中央如意花紋裝飾 (雙層線條，作為背景浮水印)
+    // 外層如意
+    el('path', {
+      d: "M 80 114 C 88 114, 96 120, 93 129 C 100 125, 108 130, 105 139 C 108 148, 100 153, 93 149 C 96 158, 88 164, 80 164 C 72 164, 64 158, 67 149 C 60 153, 52 148, 55 139 C 52 130, 60 125, 67 129 C 64 120, 72 114, 80 114 Z",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.22",
+      "stroke-width": "1.5"
+    }, bodyGroup);
+    // 內層如意
+    el('path', {
+      d: "M 80 121 C 85 121, 90 125, 88 131 C 93 128, 98 131, 96 137 C 98 143, 93 147, 88 144 C 90 150, 85 154, 80 154 C 75 154, 70 150, 72 144 C 67 147, 62 143, 64 137 C 62 131, 67 128, 72 131 Q 70 125, 75 121, 80 121 Z",
+      fill: "none",
+      stroke: swatch.ink,
+      "stroke-opacity": "0.18",
       "stroke-width": "1"
     }, bodyGroup);
 
     // 立體摺痕線條
     // 內左摺線
     el('path', {
-      d: "M 80 91 Q 66 136 80 181",
+      d: "M 80 92 Q 62 136 80 180",
       fill: "none",
       stroke: swatch.ink,
-      "stroke-opacity": "0.16",
+      "stroke-opacity": "0.14",
       "stroke-width": "1.2"
     }, bodyGroup);
     // 外左摺線
     el('path', {
-      d: "M 80 91 Q 52 136 80 181",
+      d: "M 80 92 Q 47 136 80 180",
       fill: "none",
       stroke: swatch.ink,
-      "stroke-opacity": "0.14",
+      "stroke-opacity": "0.11",
       "stroke-width": "1"
     }, bodyGroup);
     // 內右摺線
     el('path', {
-      d: "M 80 91 Q 94 136 80 181",
+      d: "M 80 92 Q 98 136 80 180",
       fill: "none",
       stroke: swatch.ink,
-      "stroke-opacity": "0.16",
+      "stroke-opacity": "0.14",
       "stroke-width": "1.2"
     }, bodyGroup);
     // 外右摺線
     el('path', {
-      d: "M 80 91 Q 108 136 80 181",
+      d: "M 80 92 Q 113 136 80 180",
       fill: "none",
       stroke: swatch.ink,
-      "stroke-opacity": "0.14",
+      "stroke-opacity": "0.11",
       "stroke-width": "1"
     }, bodyGroup);
     // 中線
     el('path', {
-      d: "M 80 91 L 80 181",
+      d: "M 80 92 L 80 180",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.12",
@@ -556,48 +593,15 @@
     }, bodyGroup);
     t2.textContent = entry.b;
 
-    // 3. 蓮花底座 (雙層金屬蓮花瓣)
-    // 外層蓮花瓣 (較暗)
-    el('path', {
-      d: "M 48 184 C 44 175, 66 177, 68 193 Z",
-      fill: "url(#gold-dark-" + gradId + ")"
-    }, svg);
-    el('path', {
-      d: "M 112 184 C 116 175, 94 177, 92 193 Z",
-      fill: "url(#gold-dark-" + gradId + ")"
-    }, svg);
-
-    // 內層蓮花瓣 (較亮)
-    // 左瓣
-    el('path', {
-      d: "M 50 188 C 55 178, 71 180, 73 193 C 67 195, 56 193, 50 188 Z",
-      fill: "url(#gold-" + gradId + ")"
-    }, svg);
-    // 右瓣
-    el('path', {
-      d: "M 110 188 C 105 178, 89 180, 87 193 C 93 195, 104 193, 110 188 Z",
-      fill: "url(#gold-" + gradId + ")"
-    }, svg);
-    // 中瓣
-    el('path', {
-      d: "M 67 193 C 70 181, 90 181, 93 193 C 87 197, 73 197, 67 193 Z",
-      fill: "url(#gold-" + gradId + ")"
-    }, svg);
-
-    // 蓮花座托環
-    el('ellipse', {
-      cx: "80", cy: "194.5", rx: "19", ry: "3.2",
-      fill: "url(#gold-" + gradId + ")"
-    }, svg);
-    el('ellipse', {
-      cx: "80", cy: "197", rx: "15", ry: "2.8",
-      fill: "url(#gold-dark-" + gradId + ")"
-    }, svg);
+    // 3. 底部金屬圓筒蓋 (3D 效果)
+    el('rect', { x: "68", y: "180", width: "24", height: "7", fill: "url(#gold-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "180", rx: "12", ry: "2.2", fill: "url(#gold-light-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "187", rx: "12", ry: "2.2", fill: "url(#gold-dark-" + gradId + ")" }, svg);
 
     // --- 懸掛條幅心願卡 ---
     // 懸吊線
     el('line', {
-      x1: "80", y1: "198", x2: "80", y2: "220",
+      x1: "80", y1: "187", x2: "80", y2: "220",
       stroke: "#b8860b", "stroke-width": "1.2"
     }, svg);
     // 紅色連接圓珠
