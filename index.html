@@ -631,17 +631,17 @@
     el('circle', { cx: "89", cy: "302", r: "1.8", fill: "#b5873c" }, svg);
     el('circle', { cx: "92", cy: "297", r: "1.5", fill: "#c0392b" }, svg);
 
-    // 直書心願文字 (黑色毛筆字體 Ma Shan Zheng)
+    // 直書心願文字 (黑宋體字 Noto Serif TC)
     var wishChars = entry.w.split('');
     wishChars.forEach(function(ch, idx) {
       var ty = 223 + idx * 14;
       var t = el('text', {
         x: "80", y: String(ty), 
         "text-anchor": "middle", 
-        "font-size": "11", 
-        "font-family": "'Ma Shan Zheng', 'Noto Serif TC', serif", 
-        "font-weight": "800", 
-        fill: "#000000" // 黑色毛筆字
+        "font-size": "11.5", 
+        "font-family": "'Noto Serif TC', serif", 
+        "font-weight": "700", 
+        fill: "#1c1c1c" // 黑色宋體字
       }, svg);
       t.textContent = ch;
     });
