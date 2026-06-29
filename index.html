@@ -601,57 +601,50 @@
     // --- 懸掛條幅心願卡 ---
     // 懸吊線
     el('line', {
-      x1: "80", y1: "187", x2: "80", y2: "220",
+      x1: "80", y1: "187", x2: "80", y2: "205",
       stroke: "#b8860b", "stroke-width": "1.2"
     }, svg);
-    // 紅色連接圓珠
-    el('circle', {
-      cx: "80", cy: "220", r: "3",
-      fill: "#c0392b"
-    }, svg);
 
-    // 條幅背景 (淡粉色, 燕尾底形)
-    el('path', {
-      d: "M 66 220 L 94 220 L 94 296 L 80 287 L 66 296 Z",
+    // 條幅背景 (淡粉色, 直角矩形加金色描邊)
+    el('rect', {
+      x: "66", y: "205", width: "28", height: "100", rx: "2",
       fill: "#ffd6e0", // 淡粉色背景底
-      stroke: "#c0392b", // 紅色邊框
+      stroke: "#b5873c", // 金色邊框
       "stroke-width": "1"
     }, svg);
 
-    // 條幅內飾細紅線
-    el('path', {
-      d: "M 69 223 L 91 223 L 91 289 L 80 281 L 69 289 Z",
+    // 條幅內飾細金線
+    el('rect', {
+      x: "68", y: "207", width: "24", height: "96", rx: "1",
       fill: "none",
-      stroke: "rgba(192, 57, 43, 0.4)",
-      "stroke-width": "0.8"
+      stroke: "rgba(212, 175, 55, 0.4)",
+      "stroke-width": "0.6"
     }, svg);
+
+    // 左上角紅金雲彩花紋裝飾
+    el('circle', { cx: "69", cy: "210", r: "2.2", fill: "#c0392b" }, svg);
+    el('circle', { cx: "71", cy: "208", r: "1.8", fill: "#b5873c" }, svg);
+    el('circle', { cx: "68", cy: "213", r: "1.5", fill: "#c0392b" }, svg);
+
+    // 右下角紅金雲彩花紋裝飾
+    el('circle', { cx: "91", cy: "300", r: "2.2", fill: "#c0392b" }, svg);
+    el('circle', { cx: "89", cy: "302", r: "1.8", fill: "#b5873c" }, svg);
+    el('circle', { cx: "92", cy: "297", r: "1.5", fill: "#c0392b" }, svg);
 
     // 直書心願文字 (黑色毛筆字體 Ma Shan Zheng)
     var wishChars = entry.w.split('');
     wishChars.forEach(function(ch, idx) {
-      var ty = 237 + idx * 13;
+      var ty = 223 + idx * 14;
       var t = el('text', {
         x: "80", y: String(ty), 
         "text-anchor": "middle", 
-        "font-size": "10.5", 
+        "font-size": "11", 
         "font-family": "'Ma Shan Zheng', 'Noto Serif TC', serif", 
         "font-weight": "800", 
         fill: "#000000" // 黑色毛筆字
       }, svg);
       t.textContent = ch;
     });
-
-    // 條幅底部的吊繩與流蘇
-    el('line', {
-      x1: "80", y1: "287", x2: "80", y2: "297",
-      stroke: "#c0392b", "stroke-width": "1.2"
-    }, svg);
-    el('path', {
-      d: "M 78 297 L 75 311 M 80 297 L 80 314 M 82 297 L 85 311",
-      stroke: "#c0392b",
-      "stroke-width": "1.2",
-      "stroke-linecap": "round"
-    }, svg);
 
     // 融合真實燈籠光澤，產生發光光暈
     svg.style.filter = "drop-shadow(0 0 15px " + swatch.fill + "b3)";
