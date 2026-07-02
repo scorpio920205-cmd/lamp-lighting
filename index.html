@@ -233,6 +233,17 @@
     }
   }
 
+  /* ---------- 燈籠內部火焰呼吸閃爍效果 ---------- */
+  @keyframes flameFlicker {
+    0%, 100% { opacity: 0.75; transform: scale(1); }
+    30% { opacity: 0.95; transform: scale(1.04) translate(-0.3px, -0.3px); }
+    70% { opacity: 0.55; transform: scale(0.92) translate(0.3px, 0.3px); }
+  }
+  .internal-flame {
+    animation: flameFlicker 1.4s ease-in-out infinite alternate;
+    transform-origin: 80px 155px;
+  }
+
   @keyframes sparkDrift {
     0% {
       transform: translate(0, 0) scale(1);
@@ -447,13 +458,13 @@
     var radGrad = el('radialGradient', {
       id: gradId,
       cx: "50%",
-      cy: "75%",
-      r: "65%"
+      cy: "78%",
+      r: "68%"
     }, defs);
     el('stop', {offset: "0%", "stop-color": "#ffffff"}, radGrad);
-    el('stop', {offset: "20%", "stop-color": "#fffcdb"}, radGrad);
-    el('stop', {offset: "60%", "stop-color": swatch.fill}, radGrad);
-    el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 25)}, radGrad);
+    el('stop', {offset: "15%", "stop-color": "#fffcd3"}, radGrad);
+    el('stop', {offset: "40%", "stop-color": swatch.fill}, radGrad);
+    el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 35)}, radGrad);
 
     // 金屬金色漸變定義 (用於頂底金屬圓筒蓋)
     var goldGrad = el('linearGradient', {
@@ -503,101 +514,105 @@
     el('feBlend', {mode: "multiply", in: "SourceGraphic", in2: "composite"}, paperFilter);
 
     // --- 燈籠本體 ---
-    // 1. 頂部裝飾金屬圓筒蓋 (3D 效果)
-    el('rect', { x: "68", y: "81", width: "24", height: "7", fill: "url(#gold-" + gradId + ")" }, svg);
-    el('ellipse', { cx: "80", cy: "81", rx: "12", ry: "2.2", fill: "url(#gold-light-" + gradId + ")" }, svg);
-    el('ellipse', { cx: "80", cy: "88", rx: "12", ry: "2.2", fill: "url(#gold-dark-" + gradId + ")" }, svg);
+    // 1. 頂部裝飾金屬圓筒蓋 (3D 效果，寬度拓寬配合扁圓燈身)
+    el('rect', { x: "66", y: "83", width: "28", height: "7", fill: "url(#gold-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "83", rx: "14", ry: "2", fill: "url(#gold-light-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "90", rx: "14", ry: "2", fill: "url(#gold-dark-" + gradId + ")" }, svg);
 
     // 2. 圓形燈體 (套用紙紋濾鏡)
     var bodyGroup = el('g', { filter: "url(#paper-tex-" + gradId + ")" }, svg);
     
-    // 主橢圓 (優雅的略呈橢圓形天燈，長寬比例調整)
+    // 主橢圓 (偏圓、微扁的燈體，與圖片相符)
     el('ellipse', {
-      cx: "80", cy: "134", rx: "38", ry: "46",
+      cx: "80", cy: "130", rx: "44", ry: "40",
       fill: "url(#" + gradId + ")",
       stroke: "rgba(255,255,255,0.45)",
       "stroke-width": "1.2"
     }, bodyGroup);
 
-    // 內部金色火焰 (雙層，產生閃閃發光與層次感)
-    // 1. 外焰 (帶有模糊效果)
+    // 內部金色火焰 (雙層，套用忽暗忽亮的 CSS 動畫效果)
+    // 1. 外焰 (帶有模糊與動畫效果)
     el('path', {
-      d: "M 80 146 C 87 154, 90 164, 86 172 C 83 176, 77 176, 74 172 C 70 164, 73 154, 80 146 Z",
+      d: "M 80 142 C 87 150, 90 159, 86 166 C 83 170, 77 170, 74 166 C 70 159, 73 150, 80 142 Z",
       fill: "url(#" + flameGradId + ")",
-      filter: "blur(1px)"
+      filter: "blur(1px)",
+      class: "internal-flame"
     }, bodyGroup);
-    // 2. 內焰 (白色亮芯)
+    // 2. 內焰 (白色亮芯與動畫效果)
     el('path', {
-      d: "M 80 154 C 83 159, 85 165, 83 170 C 81 173, 79 173, 77 170 C 75 165, 77 159, 80 154 Z",
+      d: "M 80 149 C 83 154, 85 159, 83 164 C 81 167, 79 167, 77 164 C 75 159, 77 154, 80 149 Z",
       fill: "#ffffff",
-      opacity: "0.9"
+      opacity: "0.9",
+      class: "internal-flame"
     }, bodyGroup);
 
-    // 精細的白色蝕刻圖案 (祥雲紋與中央幾何花卉)
-    // 1. 左上祥雲紋 (精細白色線條)
+    // 精細的白色蝕刻圖案 (祥雲紋與中央海棠幾何格柵花紋)
+    // 1. 左祥雲紋 (精細白色線條)
     el('path', {
-      d: "M 48 108 A 3 3 0 0 1 50 103 A 4 4 0 0 1 57 101 A 5 5 0 0 1 65 105 A 3 3 0 0 1 67 110 A 1.5 1.5 0 0 1 65 112 C 61 112, 59 109, 55 109 C 51 109, 49 111, 48 108 Z",
+      d: "M 48 134 A 3 3 0 0 1 50 129 A 4 4 0 0 1 57 127 A 5 5 0 0 1 65 131 A 3 3 0 0 1 67 136 A 1.5 1.5 0 0 1 65 138 C 61 138, 59 135, 55 135 C 51 135, 49 137, 48 134 Z",
       fill: "none",
       stroke: "rgba(255, 255, 255, 0.45)",
       "stroke-width": "0.8"
     }, bodyGroup);
 
-    // 2. 右下祥雲紋 (精細白色線條)
+    // 2. 右祥雲紋 (精細白色線條)
     el('path', {
-      d: "M 94 158 A 3 3 0 0 1 96 153 A 4 4 0 0 1 103 151 A 5 5 0 0 1 111 155 A 3 3 0 0 1 113 160 A 1.5 1.5 0 0 1 111 162 C 107 162, 105 159, 101 159 C 97 159, 95 161, 94 158 Z",
+      d: "M 93 134 A 3 3 0 0 1 95 129 A 4 4 0 0 1 102 127 A 5 5 0 0 1 110 131 A 3 3 0 0 1 112 136 A 1.5 1.5 0 0 1 110 138 C 106 138, 104 135, 100 135 C 96 135, 94 137, 93 134 Z",
       fill: "none",
       stroke: "rgba(255, 255, 255, 0.45)",
       "stroke-width": "0.8"
     }, bodyGroup);
 
-    // 3. 中央幾何花卉設計 (白色蝕刻曼陀羅花紋)
+    // 3. 中央幾何花卉設計 (傳統海棠花窗格柵紋路)
     var flowerGroup = el('g', {
-      stroke: "rgba(255, 255, 255, 0.35)",
-      "stroke-width": "0.7",
+      stroke: "rgba(255, 255, 255, 0.42)",
+      "stroke-width": "0.8",
       fill: "none"
     }, bodyGroup);
     
-    // 外環輔助圓與虛線圓
-    el('circle', { cx: "80", cy: "134", r: "26" }, flowerGroup);
-    el('circle', { cx: "80", cy: "134", r: "22", "stroke-dasharray": "1.5 1.5" }, flowerGroup);
+    // 外環旋轉圓角正方形 (菱形格柵)
+    el('rect', { x: "64", y: "114", width: "32", height: "32", rx: "6", transform: "rotate(45 80 130)" }, flowerGroup);
     
-    // 八瓣幾何花瓣 (四個旋轉橢圓)
-    el('ellipse', { cx: "80", cy: "134", rx: "22", ry: "6" }, flowerGroup);
-    el('ellipse', { cx: "80", cy: "134", rx: "22", ry: "6", transform: "rotate(45 80 134)" }, flowerGroup);
-    el('ellipse', { cx: "80", cy: "134", rx: "6", ry: "22" }, flowerGroup);
-    el('ellipse', { cx: "80", cy: "134", rx: "22", ry: "6", transform: "rotate(135 80 134)" }, flowerGroup);
+    // 中央圓形框
+    el('circle', { cx: "80", cy: "130", r: "11" }, flowerGroup);
     
-    // 花心小圓
-    el('circle', { cx: "80", cy: "134", r: "6", fill: "rgba(255, 255, 255, 0.12)" }, flowerGroup);
+    // 傳統交叉花瓣圓弧
+    el('circle', { cx: "80", cy: "122", r: "5.5" }, flowerGroup);
+    el('circle', { cx: "80", cy: "138", r: "5.5" }, flowerGroup);
+    el('circle', { cx: "72", cy: "130", r: "5.5" }, flowerGroup);
+    el('circle', { cx: "88", cy: "130", r: "5.5" }, flowerGroup);
+    
+    // 最內側花心
+    el('circle', { cx: "80", cy: "130", r: "2.5", fill: "rgba(255, 255, 255, 0.2)" }, flowerGroup);
 
-    // 立體摺痕線條 (更新頂底坐標至 88 及 180，並配合橢圓弧度)
-    // 內左摺線
+    // 立體摺痕線條 (更新坐標配合 cy: 130 與 ry: 40)
+    // 內 left
     el('path', {
-      d: "M 80 88 Q 63 134 80 180",
+      d: "M 80 90 Q 61 130 80 170",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.14",
       "stroke-width": "1.2"
     }, bodyGroup);
-    // 外左摺線
+    // 外 left
     el('path', {
-      d: "M 80 88 Q 49 134 80 180",
+      d: "M 80 90 Q 42 130 80 170",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.11",
       "stroke-width": "1"
     }, bodyGroup);
-    // 內右摺線
+    // 內 right
     el('path', {
-      d: "M 80 88 Q 97 134 80 180",
+      d: "M 80 90 Q 99 130 80 170",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.14",
       "stroke-width": "1.2"
     }, bodyGroup);
-    // 外右摺線
+    // 外 right
     el('path', {
-      d: "M 80 88 Q 111 134 80 180",
+      d: "M 80 90 Q 118 130 80 170",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.11",
@@ -605,17 +620,17 @@
     }, bodyGroup);
     // 中線
     el('path', {
-      d: "M 80 88 L 80 180",
+      d: "M 80 90 L 80 170",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.12",
       "stroke-width": "1"
     }, bodyGroup);
 
-    // --- 燈面文字 (完美垂直置中) ---
+    // --- 燈面文字 (保持原樣，僅垂直微調至圓心平衡位置) ---
     // 第一行：姓名 + 發願度
     var t1 = el('text', {
-      x: "80", y: "124", 
+      x: "80", y: "120", 
       "text-anchor": "middle", 
       "font-size": "10.5", 
       "font-family": "'Noto Serif TC', serif", 
@@ -626,7 +641,7 @@
     
     // 第二行：想渡的朋友姓名
     var t2 = el('text', {
-      x: "80", y: "148", 
+      x: "80", y: "144", 
       "text-anchor": "middle", 
       "font-size": "13", 
       "font-family": "'Noto Serif TC', serif", 
@@ -635,15 +650,15 @@
     }, bodyGroup);
     t2.textContent = entry.b;
 
-    // 3. 底部金屬圓筒蓋 (3D 效果)
-    el('rect', { x: "68", y: "180", width: "24", height: "7", fill: "url(#gold-" + gradId + ")" }, svg);
-    el('ellipse', { cx: "80", cy: "180", rx: "12", ry: "2.2", fill: "url(#gold-light-" + gradId + ")" }, svg);
-    el('ellipse', { cx: "80", cy: "187", rx: "12", ry: "2.2", fill: "url(#gold-dark-" + gradId + ")" }, svg);
+    // 3. 底部金屬圓筒蓋 (3D 效果，寬度拓寬配合扁圓燈身)
+    el('rect', { x: "66", y: "170", width: "28", height: "7", fill: "url(#gold-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "170", rx: "14", ry: "2", fill: "url(#gold-light-" + gradId + ")" }, svg);
+    el('ellipse', { cx: "80", cy: "177", rx: "14", ry: "2", fill: "url(#gold-dark-" + gradId + ")" }, svg);
 
-    // --- 懸掛條幅心願卡 ---
+    // --- 懸掛條幅心願卡 (完全不更動，位置與連結線配合新底蓋) ---
     // 懸吊線
     el('line', {
-      x1: "80", y1: "187", x2: "80", y2: "205",
+      x1: "80", y1: "177", x2: "80", y2: "205",
       stroke: "#b8860b", "stroke-width": "1.2"
     }, svg);
 
