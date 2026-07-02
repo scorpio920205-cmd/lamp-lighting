@@ -31,8 +31,16 @@
     background-position:center bottom;
   }
   [data-theme="night"] .celestial{
+    display: block;
     top:14.5%; left:86.5%; width:54px; height:54px;
-    box-shadow:0 0 50px 22px var(--celestial-glow);
+    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #fffdf0 35%, #fdf5d0 70%, #ebd485 100%);
+    box-shadow: 
+      0 0 20px 5px rgba(255, 253, 240, 0.6), 
+      0 0 45px 15px rgba(253, 245, 208, 0.4),
+      0 0 90px 30px rgba(235, 212, 133, 0.2);
+    border-radius: 50%;
+    opacity: 0.95;
+    z-index: 2;
   }
   [data-theme="night"] .stars{ display:none; }
   [data-theme="day"]{
@@ -74,11 +82,15 @@
     transition:background 1.2s ease, box-shadow 1.2s ease;
   }
   [data-theme="night"] .celestial::after{
-    content:"";
-    position:absolute; top:8px; left:18px;
-    width:70px; height:70px; border-radius:50%;
-    background:var(--sky-top);
-    box-shadow:0 0 0 var(--sky-top);
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: 
+      radial-gradient(circle at 70% 60%, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0) 25%),
+      radial-gradient(circle at 40% 70%, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0) 30%),
+      radial-gradient(circle at 30% 40%, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 20%),
+      radial-gradient(circle at 75% 30%, rgba(0,0,0,0.07) 0%, rgba(0,0,0,0) 25%);
+    opacity: 0.8;
   }
 
   .stars{position:absolute; inset:0; opacity:0; transition:opacity 1.2s ease}
@@ -431,16 +443,17 @@
     var defs = el('defs', {}, svg);
     
     // 3D 漸變定義：模擬天燈中央熱源的明亮光點，並加深邊緣以產生立體3D球體光澤
+    // 修改為：熱源偏向中下方，模擬底部的金色火焰光源
     var radGrad = el('radialGradient', {
       id: gradId,
       cx: "50%",
-      cy: "45%",
-      r: "60%"
+      cy: "75%",
+      r: "65%"
     }, defs);
     el('stop', {offset: "0%", "stop-color": "#ffffff"}, radGrad);
-    el('stop', {offset: "20%", "stop-color": "#fffceb"}, radGrad);
+    el('stop', {offset: "20%", "stop-color": "#fffcdb"}, radGrad);
     el('stop', {offset: "60%", "stop-color": swatch.fill}, radGrad);
-    el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 20)}, radGrad);
+    el('stop', {offset: "100%", "stop-color": darkenColor(swatch.fill, 25)}, radGrad);
 
     // 金屬金色漸變定義 (用於頂底金屬圓筒蓋)
     var goldGrad = el('linearGradient', {
@@ -469,6 +482,19 @@
     el('stop', {offset: "50%", "stop-color": "#b5873c"}, goldGradDark);
     el('stop', {offset: "100%", "stop-color": "#5e4104"}, goldGradDark);
 
+    // 火焰的徑向漸變
+    var flameGradId = "flame-grad-" + gradId;
+    var flameGrad = el('radialGradient', {
+      id: flameGradId,
+      cx: "50%",
+      cy: "80%",
+      r: "50%"
+    }, defs);
+    el('stop', {offset: "0%", "stop-color": "#ffffff"}, flameGrad);
+    el('stop', {offset: "25%", "stop-color": "#ffeb3b"}, flameGrad);
+    el('stop', {offset: "65%", "stop-color": "#ff9800"}, flameGrad);
+    el('stop', {offset: "100%", "stop-color": "#ff3d00", "stop-opacity": "0"}, flameGrad);
+
     // 紙紋濾鏡 (Paper Texture Filter)
     var paperFilter = el('filter', {id: "paper-tex-" + gradId}, defs);
     el('feTurbulence', {type: "fractalNoise", baseFrequency: "0.85", numOctaves: "1", result: "noise"}, paperFilter);
@@ -485,54 +511,69 @@
     // 2. 圓形燈體 (套用紙紋濾鏡)
     var bodyGroup = el('g', { filter: "url(#paper-tex-" + gradId + ")" }, svg);
     
-    // 主圓形橢圓 (接近圓形)
+    // 主橢圓 (優雅的略呈橢圓形天燈，長寬比例調整)
     el('ellipse', {
-      cx: "80", cy: "136", rx: "42", ry: "44",
+      cx: "80", cy: "134", rx: "38", ry: "46",
       fill: "url(#" + gradId + ")",
-      stroke: "rgba(255,255,255,0.4)",
+      stroke: "rgba(255,255,255,0.45)",
       "stroke-width": "1.2"
     }, bodyGroup);
 
-    // 祥雲背景裝飾 (浮水印效果)
-    // 左祥雲
+    // 內部金色火焰 (雙層，產生閃閃發光與層次感)
+    // 1. 外焰 (帶有模糊效果)
     el('path', {
-      d: "M 54 114 Q 50 114 48 118 Q 44 118 46 122 Q 50 124 54 122 Q 58 122 56 118 Z",
-      fill: "none",
-      stroke: swatch.ink,
-      "stroke-opacity": "0.14",
-      "stroke-width": "1"
+      d: "M 80 146 C 87 154, 90 164, 86 172 C 83 176, 77 176, 74 172 C 70 164, 73 154, 80 146 Z",
+      fill: "url(#" + flameGradId + ")",
+      filter: "blur(1px)"
     }, bodyGroup);
-    // 右祥雲
+    // 2. 內焰 (白色亮芯)
     el('path', {
-      d: "M 106 150 Q 110 150 112 154 Q 116 154 114 158 Q 110 160 106 158 Q 102 158 104 154 Z",
-      fill: "none",
-      stroke: swatch.ink,
-      "stroke-opacity": "0.14",
-      "stroke-width": "1"
+      d: "M 80 154 C 83 159, 85 165, 83 170 C 81 173, 79 173, 77 170 C 75 165, 77 159, 80 154 Z",
+      fill: "#ffffff",
+      opacity: "0.9"
     }, bodyGroup);
 
-    // 中央如意花紋裝飾 (雙層線條，作為背景浮水印)
-    // 外層如意
+    // 精細的白色蝕刻圖案 (祥雲紋與中央幾何花卉)
+    // 1. 左上祥雲紋 (精細白色線條)
     el('path', {
-      d: "M 80 114 C 88 114, 96 120, 93 129 C 100 125, 108 130, 105 139 C 108 148, 100 153, 93 149 C 96 158, 88 164, 80 164 C 72 164, 64 158, 67 149 C 60 153, 52 148, 55 139 C 52 130, 60 125, 67 129 C 64 120, 72 114, 80 114 Z",
+      d: "M 48 108 A 3 3 0 0 1 50 103 A 4 4 0 0 1 57 101 A 5 5 0 0 1 65 105 A 3 3 0 0 1 67 110 A 1.5 1.5 0 0 1 65 112 C 61 112, 59 109, 55 109 C 51 109, 49 111, 48 108 Z",
       fill: "none",
-      stroke: swatch.ink,
-      "stroke-opacity": "0.22",
-      "stroke-width": "1.5"
-    }, bodyGroup);
-    // 內層如意
-    el('path', {
-      d: "M 80 121 C 85 121, 90 125, 88 131 C 93 128, 98 131, 96 137 C 98 143, 93 147, 88 144 C 90 150, 85 154, 80 154 C 75 154, 70 150, 72 144 C 67 147, 62 143, 64 137 C 62 131, 67 128, 72 131 Q 70 125, 75 121, 80 121 Z",
-      fill: "none",
-      stroke: swatch.ink,
-      "stroke-opacity": "0.18",
-      "stroke-width": "1"
+      stroke: "rgba(255, 255, 255, 0.45)",
+      "stroke-width": "0.8"
     }, bodyGroup);
 
-    // 立體摺痕線條
+    // 2. 右下祥雲紋 (精細白色線條)
+    el('path', {
+      d: "M 94 158 A 3 3 0 0 1 96 153 A 4 4 0 0 1 103 151 A 5 5 0 0 1 111 155 A 3 3 0 0 1 113 160 A 1.5 1.5 0 0 1 111 162 C 107 162, 105 159, 101 159 C 97 159, 95 161, 94 158 Z",
+      fill: "none",
+      stroke: "rgba(255, 255, 255, 0.45)",
+      "stroke-width": "0.8"
+    }, bodyGroup);
+
+    // 3. 中央幾何花卉設計 (白色蝕刻曼陀羅花紋)
+    var flowerGroup = el('g', {
+      stroke: "rgba(255, 255, 255, 0.35)",
+      "stroke-width": "0.7",
+      fill: "none"
+    }, bodyGroup);
+    
+    // 外環輔助圓與虛線圓
+    el('circle', { cx: "80", cy: "134", r: "26" }, flowerGroup);
+    el('circle', { cx: "80", cy: "134", r: "22", "stroke-dasharray": "1.5 1.5" }, flowerGroup);
+    
+    // 八瓣幾何花瓣 (四個旋轉橢圓)
+    el('ellipse', { cx: "80", cy: "134", rx: "22", ry: "6" }, flowerGroup);
+    el('ellipse', { cx: "80", cy: "134", rx: "22", ry: "6", transform: "rotate(45 80 134)" }, flowerGroup);
+    el('ellipse', { cx: "80", cy: "134", rx: "6", ry: "22" }, flowerGroup);
+    el('ellipse', { cx: "80", cy: "134", rx: "22", ry: "6", transform: "rotate(135 80 134)" }, flowerGroup);
+    
+    // 花心小圓
+    el('circle', { cx: "80", cy: "134", r: "6", fill: "rgba(255, 255, 255, 0.12)" }, flowerGroup);
+
+    // 立體摺痕線條 (更新頂底坐標至 88 及 180，並配合橢圓弧度)
     // 內左摺線
     el('path', {
-      d: "M 80 92 Q 62 136 80 180",
+      d: "M 80 88 Q 63 134 80 180",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.14",
@@ -540,7 +581,7 @@
     }, bodyGroup);
     // 外左摺線
     el('path', {
-      d: "M 80 92 Q 47 136 80 180",
+      d: "M 80 88 Q 49 134 80 180",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.11",
@@ -548,7 +589,7 @@
     }, bodyGroup);
     // 內右摺線
     el('path', {
-      d: "M 80 92 Q 98 136 80 180",
+      d: "M 80 88 Q 97 134 80 180",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.14",
@@ -556,7 +597,7 @@
     }, bodyGroup);
     // 外右摺線
     el('path', {
-      d: "M 80 92 Q 113 136 80 180",
+      d: "M 80 88 Q 111 134 80 180",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.11",
@@ -564,17 +605,17 @@
     }, bodyGroup);
     // 中線
     el('path', {
-      d: "M 80 92 L 80 180",
+      d: "M 80 88 L 80 180",
       fill: "none",
       stroke: swatch.ink,
       "stroke-opacity": "0.12",
       "stroke-width": "1"
     }, bodyGroup);
 
-    // --- 燈面文字 (位置不變，在燈身上，寫法不變) ---
+    // --- 燈面文字 (完美垂直置中) ---
     // 第一行：姓名 + 發願度
     var t1 = el('text', {
-      x: "80", y: "126", 
+      x: "80", y: "124", 
       "text-anchor": "middle", 
       "font-size": "10.5", 
       "font-family": "'Noto Serif TC', serif", 
@@ -585,7 +626,7 @@
     
     // 第二行：想渡的朋友姓名
     var t2 = el('text', {
-      x: "80", y: "151", 
+      x: "80", y: "148", 
       "text-anchor": "middle", 
       "font-size": "13", 
       "font-family": "'Noto Serif TC', serif", 
@@ -652,8 +693,8 @@
       t.textContent = ch;
     });
 
-    // 融合真實燈籠光澤，產生發光光暈
-    svg.style.filter = "drop-shadow(0 0 15px " + swatch.fill + "b3)";
+    // 融合真實燈籠光澤與溫暖的金色火焰光芒，產生發光光暈
+    svg.style.filter = "drop-shadow(0 0 12px " + swatch.fill + "b3) drop-shadow(0 0 20px rgba(255, 150, 0, 0.55))";
 
     return svg;
   }
