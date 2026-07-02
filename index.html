@@ -119,16 +119,16 @@
   }
   .title-cjk{
     font-family:'Noto Serif TC',serif; font-weight:700;
-    font-size:clamp(28px,4vw,46px); letter-spacing:.5rem;
+    font-size:clamp(36px,5.5vw,56px); letter-spacing:.5rem;
     color:var(--text-primary); margin:0;
   }
   .title-rule{width:70px;height:3px;background:var(--ember);margin:14px auto}
   .couplet{
-    font-family:'Noto Serif TC',serif; font-size:clamp(13px,1.4vw,16px);
+    font-family:'Noto Serif TC',serif; font-size:clamp(17px,2.2vw,22px);
     color:var(--text-secondary); line-height:1.9; margin:0;
   }
-  .counter{margin-top:14px; font-size:clamp(13px,1.3vw,15px); color:var(--text-secondary)}
-  .counter b{color:var(--ember); font-size:1.15em; font-weight:700}
+  .counter{margin-top:14px; font-size:clamp(16px,2.0vw,19px); color:var(--text-secondary)}
+  .counter b{color:var(--ember); font-size:1.35em; font-weight:700}
 
   .theme-toggle{
     position:absolute; top:1.6rem; left:1.6rem; z-index:7;
@@ -563,27 +563,30 @@
       "stroke-width": "0.8"
     }, bodyGroup);
 
-    // 3. 中央幾何花卉設計 (傳統海棠花窗格柵紋路)
+    // 3. 中央幾何蓮花曼陀羅設計 (Lotus Mandala)
     var flowerGroup = el('g', {
-      stroke: "rgba(255, 255, 255, 0.42)",
+      stroke: "rgba(255, 255, 255, 0.45)",
       "stroke-width": "0.8",
       fill: "none"
     }, bodyGroup);
     
-    // 外環旋轉圓角正方形 (菱形格柵)
-    el('rect', { x: "64", y: "114", width: "32", height: "32", rx: "6", transform: "rotate(45 80 130)" }, flowerGroup);
-    
-    // 中央圓形框
-    el('circle', { cx: "80", cy: "130", r: "11" }, flowerGroup);
-    
-    // 傳統交叉花瓣圓弧
-    el('circle', { cx: "80", cy: "122", r: "5.5" }, flowerGroup);
-    el('circle', { cx: "80", cy: "138", r: "5.5" }, flowerGroup);
-    el('circle', { cx: "72", cy: "130", r: "5.5" }, flowerGroup);
-    el('circle', { cx: "88", cy: "130", r: "5.5" }, flowerGroup);
-    
-    // 最內側花心
-    el('circle', { cx: "80", cy: "130", r: "2.5", fill: "rgba(255, 255, 255, 0.2)" }, flowerGroup);
+    // 曼陀羅同心圓框
+    el('circle', { cx: "80", cy: "130", r: "10" }, flowerGroup);
+    el('circle', { cx: "80", cy: "130", r: "21" }, flowerGroup);
+
+    // 8 瓣雙層對稱的蓮花瓣迴圈繪製
+    for (var angle = 0; angle < 360; angle += 45) {
+      el('path', {
+        d: "M 80 130 Q 80 115 87 118 Q 80 130 80 130",
+        transform: "rotate(" + angle + " 80 130)"
+      }, flowerGroup);
+      el('path', {
+        d: "M 80 130 Q 80 115 73 118 Q 80 130 80 130",
+        transform: "rotate(" + angle + " 80 130)"
+      }, flowerGroup);
+    }
+    // 花心微小發光點
+    el('circle', { cx: "80", cy: "130", r: "2.5", fill: "rgba(255, 255, 255, 0.25)" }, flowerGroup);
 
     // 立體摺痕線條 (更新坐標配合 cy: 130 與 ry: 40)
     // 內 left
