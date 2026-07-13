@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>心燈引渡｜普慶禪修班</title>
+<title>招生點燈｜普慶禪修班</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
@@ -31,7 +31,7 @@
     background-position:center bottom;
   }
   [data-theme="night"] .celestial{
-    display: block;
+    display: none;
     top:14.5%; left:86.5%; width:54px; height:54px;
     background: radial-gradient(circle at 30% 30%, #ffffff 0%, #fffdf0 35%, #fdf5d0 70%, #ebd485 100%);
     box-shadow: 
@@ -275,6 +275,242 @@
   .wish-icon{width:30px;height:30px;flex-shrink:0}
   .submit-btn{width:100%; height:50px; border-radius:10px; border:none; background:var(--ember); color:#fff; font-size:16px; font-weight:700; margin-top:1.6rem; cursor:pointer; font-family:'Noto Sans TC',sans-serif}
   .submit-btn:hover{background:var(--ember-deep)}
+
+  /* ---------- 點擊天燈綻放佛光與祝福特效 ---------- */
+  .lantern-container {
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), filter 0.4s ease;
+    transform-origin: center 154px; /* 對準燈身中心點 */
+    position: relative;
+    width: 190px;
+    height: 380px;
+  }
+  .lantern-container:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 20px var(--lantern-glow-color, rgba(255, 215, 0, 0.85))) 
+            drop-shadow(0 0 35px rgba(255, 150, 0, 0.75));
+    animation: hoverSway 1.8s ease-in-out infinite;
+  }
+  @keyframes hoverSway {
+    0%, 100% { transform: scale(1.05) rotate(0deg); }
+    25% { transform: scale(1.05) rotate(-2.5deg); }
+    75% { transform: scale(1.05) rotate(2.5deg); }
+  }
+
+  /* 燈芯瞬間變亮 */
+  .lantern-container.blooming .internal-flame {
+    animation: flameBloom 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    transform-origin: 80px 155px;
+  }
+  @keyframes flameBloom {
+    0% {
+      transform: scale(1);
+      opacity: 0.9;
+      filter: brightness(1.5) drop-shadow(0 0 10px #fff);
+    }
+    10%, 45% {
+      transform: scale(1.7) translate(0px, -2px);
+      opacity: 1;
+      filter: brightness(2.8) drop-shadow(0 0 18px #ffeb3b) drop-shadow(0 0 28px #ff9800);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.9;
+      filter: none;
+    }
+  }
+
+  /* 金色佛光向外擴散 */
+  .buddha-glow-ring {
+    position: absolute;
+    top: 154px; /* 燈身中心 Y */
+    left: 95px; /* 燈身中心 X */
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,223,100,0.95) 25%, rgba(255,180,0,0.55) 60%, rgba(255,150,0,0) 100%);
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    opacity: 0;
+    z-index: -1;
+  }
+  .lantern-container.blooming .buddha-glow-ring {
+    animation: buddhaBloom 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes buddhaBloom {
+    0% {
+      transform: translate(-50%, -50%) scale(0.1);
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    20% {
+      transform: translate(-50%, -50%) scale(22);
+      opacity: 0.9;
+      filter: blur(2px);
+    }
+    80% {
+      opacity: 0.35;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(30);
+      opacity: 0;
+      filter: blur(6px);
+    }
+  }
+
+  /* 蓮花曼陀羅浮現並緩慢旋轉 */
+  .lotus-mandala {
+    position: absolute;
+    top: 154px;
+    left: 95px;
+    width: 250px;
+    height: 250px;
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    transform-origin: center center;
+    pointer-events: none;
+    opacity: 0;
+    z-index: -2;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.75));
+  }
+  .lantern-container.blooming .lotus-mandala {
+    animation: mandalaRotateBloom 2.5s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+  }
+  @keyframes mandalaRotateBloom {
+    0% {
+      transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+      opacity: 0;
+    }
+    15%, 50% {
+      transform: translate(-50%, -50%) scale(1.1) rotate(50deg);
+      opacity: 0.95;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.25) rotate(90deg);
+      opacity: 0;
+    }
+  }
+
+  /* 祝福詞浮現效果 */
+  .blessing-text-container {
+    position: absolute;
+    top: 154px;
+    left: 95px;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: row-reverse; /* 古風書寫：從右到左 */
+    gap: 16px;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 12;
+  }
+  .lantern-container.blooming .blessing-text-container {
+    animation: blessingFloatUp 2.5s cubic-bezier(0.2, 0.85, 0.4, 1) forwards;
+  }
+  .blessing-bg-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(255, 240, 180, 0.25) 0%, rgba(255, 150, 0, 0.05) 50%, rgba(0,0,0,0) 80%);
+    filter: blur(8px);
+    pointer-events: none;
+    z-index: 11;
+    opacity: 0;
+  }
+  .lantern-container.blooming .blessing-bg-glow {
+    animation: blessingBgFade 2.5s ease-in-out forwards;
+  }
+  @keyframes blessingBgFade {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    15%, 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.25); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+  }
+
+  .blessing-column {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: #fffdec;
+    text-shadow: 
+      0 0 4px #ffd700, 
+      0 0 10px #ff9800,
+      0 0 20px rgba(255, 150, 0, 0.8);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    letter-spacing: 0.35em;
+    opacity: 0;
+  }
+  .lantern-container.blooming .blessing-column {
+    animation: blessingTextFade 2.5s ease-in-out forwards;
+  }
+  /* 第一欄（背景發光除外）與第二欄微粒延遲，產生詩意感 */
+  .blessing-column:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .blessing-column:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes blessingFloatUp {
+    0% {
+      transform: translate(-50%, -10px);
+      opacity: 0;
+    }
+    15%, 55% {
+      transform: translate(-50%, -70px);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -120px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes blessingTextFade {
+    0% {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    15%, 55% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+
+  /* 金色粒子向上飄散 */
+  .golden-particle {
+    position: absolute;
+    background: radial-gradient(circle, #ffffff 0%, #ffd700 60%, rgba(212,175,55,0) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10;
+    filter: drop-shadow(0 0 4px #ffd700);
+    opacity: 0;
+  }
+  @keyframes particleFloat {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: translate(var(--pdx), var(--pdy)) scale(0.2);
+      opacity: 0;
+    }
+  }
 </style>
 </head>
 <body>
@@ -293,7 +529,7 @@
   <button class="cta-light" id="goBtn">我要<br>點燈</button>
 
   <header class="hud">
-    <p class="title-cjk">心燈引渡</p>
+    <p class="title-cjk">招生點燈</p>
     <div class="title-rule"></div>
     <p class="couplet">一燈引路，渡得一人　願以此心，廣結善緣</p>
     <p class="counter">現在已發願渡人：<b id="lampCount">0</b> 願</p>
@@ -711,10 +947,266 @@
       t.textContent = ch;
     });
 
-    // 融合真實燈籠光澤與溫暖的金色火焰光芒，產生發光光暈
+    // 融合真實燈籠光澤與溫慢的金色火焰光芒，產生發光光暈
     svg.style.filter = "drop-shadow(0 0 12px " + swatch.fill + "b3) drop-shadow(0 0 20px rgba(255, 150, 0, 0.55))";
 
     return svg;
+  }
+
+  /* ---------- 金色精細蓮花曼陀羅 SVG 生成器 ---------- */
+  function createMandalaSVG() {
+    var svg = el('svg', {viewBox: "0 0 200 200", class: "lotus-mandala"});
+    var defs = el('defs', {}, svg);
+    
+    var gradId = "mandala-gold-" + Math.random().toString(36).substr(2, 9);
+    var goldGrad = el('linearGradient', {
+      id: gradId,
+      x1: "0%", y1: "0%", x2: "100%", y2: "100%"
+    }, defs);
+    el('stop', {offset: "0%", "stop-color": "#ffe893"}, goldGrad);
+    el('stop', {offset: "50%", "stop-color": "#ffd700"}, goldGrad);
+    el('stop', {offset: "100%", "stop-color": "#b5873c"}, goldGrad);
+
+    var g = el('g', {
+      fill: "none",
+      stroke: "url(#" + gradId + ")",
+      "stroke-width": "1.2",
+      opacity: "0.9"
+    }, svg);
+
+    // 外圈虛線與實線圈
+    el('circle', {cx: "100", cy: "100", r: "95", "stroke-width": "0.8", "stroke-dasharray": "3,3"}, g);
+    el('circle', {cx: "100", cy: "100", r: "90", "stroke-width": "1"}, g);
+    
+    // 外層 12 瓣大蓮花瓣
+    for (var a = 0; a < 360; a += 30) {
+      el('path', {
+        d: "M 100 100 Q 100 30 115 45 Q 100 100 100 100",
+        transform: "rotate(" + a + " 100 100)",
+        "stroke-width": "0.9"
+      }, g);
+      el('path', {
+        d: "M 100 100 Q 100 30 85 45 Q 100 100 100 100",
+        transform: "rotate(" + a + " 100 100)",
+        "stroke-width": "0.9"
+      }, g);
+    }
+
+    // 中圈實線
+    el('circle', {cx: "100", cy: "100", r: "50", "stroke-width": "1.3"}, g);
+    
+    // 中層 8 瓣蓮花瓣 (交錯旋轉)
+    for (var a = 22.5; a < 360; a += 45) {
+      el('path', {
+        d: "M 100 100 Q 100 55 110 65 Q 100 100 100 100",
+        transform: "rotate(" + a + " 100 100)",
+        "stroke-width": "1.1"
+      }, g);
+      el('path', {
+        d: "M 100 100 Q 100 55 90 65 Q 100 100 100 100",
+        transform: "rotate(" + a + " 100 100)",
+        "stroke-width": "1.1"
+      }, g);
+    }
+
+    // 內圈虛線
+    el('circle', {cx: "100", cy: "100", r: "25", "stroke-width": "0.9", "stroke-dasharray": "2,2"}, g);
+    
+    // 內層 8 瓣蓮花瓣
+    for (var a = 0; a < 360; a += 45) {
+      el('path', {
+        d: "M 100 100 Q 100 75 105 80 Q 100 100 100 100",
+        transform: "rotate(" + a + " 100 100)",
+        "stroke-width": "1.3"
+      }, g);
+      el('path', {
+        d: "M 100 100 Q 100 75 95 80 Q 100 100 100 100",
+        transform: "rotate(" + a + " 100 100)",
+        "stroke-width": "1.3"
+      }, g);
+    }
+
+    // 花心明亮核心
+    el('circle', {cx: "100", cy: "100", r: "8", fill: "#ffffff", stroke: "none"}, g);
+
+    return svg;
+  }
+
+  /* ---------- Web Audio API 合成輕柔悠揚的佛鐘聲 ---------- */
+  function playBellSound() {
+    try {
+      var AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      var ctx = new AudioContext();
+      var now = ctx.currentTime;
+      
+      // 模擬寺廟銅鐘/頌缽的諧音與長餘音
+      var fundamental = 160; // 160Hz 溫暖深沉的基音
+      var partials = [
+        { freq: fundamental, gain: 0.5, decay: 4.5 },       // 基音：渾厚共鳴
+        { freq: fundamental * 1.5, gain: 0.35, decay: 3.5 },   // 五度音：清澈和諧
+        { freq: fundamental * 2.0, gain: 0.3, decay: 2.5 },    // 八度音
+        { freq: fundamental * 2.61, gain: 0.25, decay: 2.0 },   // 不規則金屬諧振音（營造金屬感）
+        { freq: fundamental * 3.0, gain: 0.2, decay: 1.5 },    // 十二度音
+        { freq: fundamental * 3.82, gain: 0.15, decay: 1.2 },   // 高頻亮音
+        { freq: fundamental * 4.4, gain: 0.1, decay: 0.8 }      // 極高頻餘震
+      ];
+      
+      var masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, now);
+      masterGain.gain.linearRampToValueAtTime(1.0, now + 0.08); // 快速起音（打擊感）
+      masterGain.gain.exponentialRampToValueAtTime(0.001, now + 5.0); // 悠長衰減
+      
+      partials.forEach(function(p) {
+        var osc = ctx.createOscillator();
+        var gainNode = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(p.freq, now);
+        
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(p.gain, now + 0.08);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + p.decay);
+        
+        osc.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        osc.start(now);
+        osc.stop(now + p.decay + 0.5);
+      });
+      
+      // 低通濾波器使音色溫潤，濾除刺耳高音
+      var filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1200, now);
+      
+      masterGain.connect(filter);
+      filter.connect(ctx.destination);
+      
+      // 播完後關閉 Context 釋放記憶體
+      setTimeout(function() {
+        ctx.close();
+      }, 6000);
+      
+    } catch (e) {
+      console.warn("Audio Context error: ", e);
+    }
+  }
+
+  /* ---------- 生成飄升金色粒子 ---------- */
+  function spawnGoldenParticles(container) {
+    for (var i = 0; i < 25; i++) {
+      var p = document.createElement('div');
+      p.className = 'golden-particle';
+      
+      // 起始點：對準燈籠中心 (X: 95px, Y: 154px) 加入些微隨機偏移
+      var startX = 95 + (Math.random() * 24 - 12);
+      var startY = 154 + (Math.random() * 24 - 12);
+      var size = Math.random() * 5 + 3; // 3px 到 8px
+      
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = startX + 'px';
+      p.style.top = startY + 'px';
+      
+      // 隨機向外飄移與大幅度向上飄升
+      var pdx = (Math.random() * 110 - 55) + 'px';
+      var pdy = (Math.random() * -140 - 70) + 'px';
+      p.style.setProperty('--pdx', pdx);
+      p.style.setProperty('--pdy', pdy);
+      
+      var dur = 1.2 + Math.random() * 0.9;
+      var delay = Math.random() * 0.45;
+      p.style.animation = 'particleFloat ' + dur + 's ease-out ' + delay + 's forwards';
+      
+      container.appendChild(p);
+      
+      (function(el){
+        setTimeout(function(){ el.remove(); }, (dur + delay) * 1000 + 100);
+      })(p);
+    }
+  }
+
+  /* ---------- 統一生成天燈元件與附加點擊互動事件 ---------- */
+  function createLanternElement(entry, swatch, x, duration, swayClass) {
+    var wrap = document.createElement('div');
+    wrap.style.position = 'absolute';
+    wrap.style.left = x + '%';
+    wrap.style.top = '88%';
+    wrap.style.zIndex = '5';
+    wrap.style.animation = 'riseUp '+duration+'s linear forwards, '+swayClass+' '+(3+(Math.random()*3)*0.5)+'s ease-in-out infinite';
+    
+    // 建立互動容器
+    var container = document.createElement('div');
+    container.className = 'lantern-container';
+    container.style.setProperty('--lantern-glow-color', swatch.fill);
+    
+    // 置入天燈主 SVG
+    var svg = lanternSVG(swatch, entry);
+    container.appendChild(svg);
+    
+    // 置入金色佛光擴散環
+    var glowRing = document.createElement('div');
+    glowRing.className = 'buddha-glow-ring';
+    container.appendChild(glowRing);
+    
+    // 置入蓮花曼陀羅 SVG
+    var mandala = createMandalaSVG();
+    container.appendChild(mandala);
+    
+    // 根據 entry.w 心願取得對應的祝福詞
+    var blessingText = "";
+    wishes.forEach(function(w) {
+      if (w.label === entry.w) {
+        blessingText = w.sub;
+      }
+    });
+    if (!blessingText) {
+      blessingText = "身心安康 福壽增長"; // 預設防呆
+    }
+    
+    // 建立祝福卷軸容器
+    var blessingContainer = document.createElement('div');
+    blessingContainer.className = 'blessing-text-container';
+    
+    // 祝福背景金色柔光
+    var blessingBg = document.createElement('div');
+    blessingBg.className = 'blessing-bg-glow';
+    blessingContainer.appendChild(blessingBg);
+    
+    // 切分祝福語為直書欄位 (以空格切分兩句)
+    var parts = blessingText.split(' ');
+    parts.forEach(function(part) {
+      var col = document.createElement('div');
+      col.className = 'blessing-column';
+      col.textContent = part;
+      blessingContainer.appendChild(col);
+    });
+    
+    container.appendChild(blessingContainer);
+    
+    // 點擊事件
+    container.onclick = function(e) {
+      if (container.classList.contains('blooming')) return;
+      
+      container.classList.add('blooming');
+      playBellSound();
+      spawnGoldenParticles(container);
+      
+      // 點擊瞬間暫停天燈上升與擺動，使其在空中綻放效果
+      wrap.style.animationPlayState = 'paused';
+      
+      // 2.5 秒後收回特效並恢復飄移
+      setTimeout(function() {
+        container.classList.remove('blooming');
+        wrap.style.animationPlayState = 'running';
+      }, 2500);
+    };
+    
+    wrap.appendChild(container);
+    scene.appendChild(wrap);
+
+    setTimeout(function(){ wrap.remove(); }, duration*1000 + 150);
   }
 
   /* ---------- QR Code 網址生成 ---------- */
@@ -774,18 +1266,10 @@
     }
     var swatch = lanternPalette[entryIdx % lanternPalette.length];
     var x = xSlots[spawnIdx % xSlots.length];
-    var duration = 13 + (spawnIdx % 5) * 1.4;
+    var duration = 10 + (spawnIdx % 6) * 1.4;
     var swayClass = (spawnIdx % 2 === 0) ? 'swayA' : 'swayB';
-    var wrap = document.createElement('div');
-    wrap.style.position = 'absolute';
-    wrap.style.left = x + '%';
-    wrap.style.top = '88%';
-    wrap.style.zIndex = '5';
-    wrap.style.animation = 'riseUp '+duration+'s linear forwards, '+swayClass+' '+(3+(spawnIdx%3)*0.5)+'s ease-in-out infinite';
-    wrap.appendChild(lanternSVG(swatch, entry));
-    scene.appendChild(wrap);
-
-    setTimeout(function(){ wrap.remove(); }, duration*1000 + 150);
+    
+    createLanternElement(entry, swatch, x, duration, swayClass);
 
     // 如果沒有連線 Firebase，則使用前端本地的計數遞增
     if (!isFirebaseActive) {
@@ -795,8 +1279,8 @@
     spawnIdx++;
     entryIdx++;
   }
-  for (var i=0;i<5;i++){ (function(i){ setTimeout(spawnLantern, i*1100); })(i); }
-  setInterval(spawnLantern, 1650);
+  for (var i=0;i<5;i++){ (function(i){ setTimeout(spawnLantern, i*1300); })(i); }
+  setInterval(spawnLantern, 2000);
 
   /* ---------- 渡人心願選項（如圖樣式） ---------- */
   function lanternIconSVG(color){
@@ -915,14 +1399,7 @@
       var mockEntry = {a: myName, b: friendName, w: selectedWish};
       var swatch = lanternPalette[Math.floor(Math.random() * lanternPalette.length)];
       var x = 40 + Math.random() * 20;
-      var wrap = document.createElement('div');
-      wrap.style.position = 'absolute';
-      wrap.style.left = x + '%';
-      wrap.style.top = '88%';
-      wrap.style.zIndex = '5';
-      wrap.style.animation = 'riseUp 14s linear forwards, swayA 3.5s ease-in-out infinite';
-      wrap.appendChild(lanternSVG(swatch, mockEntry));
-      scene.appendChild(wrap);
+      createLanternElement(mockEntry, swatch, x, 14, 'swayA');
       
       counter += 1;
       countEl.textContent = counter.toLocaleString();

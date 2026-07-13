@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>心燈引渡｜精舍禪修班</title>
+<title>招生點燈｜精舍禪修班</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -167,7 +167,7 @@
   <button class="cta-light" id="goBtn">我要<br>點燈</button>
 
   <header class="hud">
-    <p class="title-cjk">心燈引渡</p>
+    <p class="title-cjk">招生點燈</p>
     <div class="title-rule"></div>
     <p class="couplet">一燈引路，渡得一人　願以此心，廣結善緣</p>
     <p class="counter">現在已發願渡人：<b id="lampCount">1,286</b> 願</p>
@@ -358,7 +358,7 @@
     var entry = entries[entryIdx % entries.length];
     var swatch = lanternPalette[entryIdx % lanternPalette.length];
     var x = xSlots[spawnIdx % xSlots.length];
-    var duration = 13 + (spawnIdx % 5) * 1.4;
+    var duration = 10 + (spawnIdx % 6) * 1.4;
     var swayClass = (spawnIdx % 2 === 0) ? 'swayA' : 'swayB';
     var text = entry.a + "願渡" + entry.b + entry.w;
 
@@ -378,8 +378,8 @@
     spawnIdx++;
     entryIdx++;
   }
-  for (var i=0;i<5;i++){ (function(i){ setTimeout(spawnLantern, i*1100); })(i); }
-  setInterval(spawnLantern, 1650);
+  for (var i=0;i<5;i++){ (function(i){ setTimeout(spawnLantern, i*1300); })(i); }
+  setInterval(spawnLantern, 2000);
 
   /* ---------- 渡人心願選項 ---------- */
   var wishes = ["身心安定","善根增長","家庭和樂","智慧開啟","業障消除","法喜充滿"];
