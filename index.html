@@ -31,7 +31,7 @@
     background-position:center bottom;
   }
   [data-theme="night"] .celestial{
-    display: none;
+    display: block;
     top:14.5%; left:86.5%; width:54px; height:54px;
     background: radial-gradient(circle at 30% 30%, #ffffff 0%, #fffdf0 35%, #fdf5d0 70%, #ebd485 100%);
     box-shadow: 
@@ -564,12 +564,11 @@
   </div>
 </div>
 
-<!-- Firebase SDK Compat -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<!-- Firebase SDK v9+ Modular (Loaded via CDN ES Modules) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, query, orderByChild, limitToLast, onValue, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-<script>
-(function(){
   // ====== Firebase 整合設定 ======
   var firebaseConfig = {
     apiKey: "AIzaSyAgKugQ-RcN6-x2jsou1GZ5r3lUNP7jV5o",
@@ -583,11 +582,13 @@
 
   var db = null;
   var isFirebaseActive = false;
+  var wishesRef = null;
 
   try {
     if (firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.apiKey !== "") {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.database();
+      var app = initializeApp(firebaseConfig);
+      db = getDatabase(app);
+      wishesRef = ref(db, 'wishes');
       isFirebaseActive = true;
       console.log("Firebase initialized successfully.");
     } else {
@@ -1235,8 +1236,9 @@
   var countEl = document.getElementById('lampCount');
 
   // 如果 Firebase 已連線，開始監聽資料庫
-  if (isFirebaseActive && db) {
-    db.ref('wishes').orderByChild('timestamp').limitToLast(100).on('value', function(snapshot) {
+  if (isFirebaseActive && db && wishesRef) {
+    var recentWishesQuery = query(wishesRef, orderByChild('timestamp'), limitToLast(100));
+    onValue(recentWishesQuery, function(snapshot) {
       var data = snapshot.val();
       if (data) {
         var temp = [];
@@ -1250,7 +1252,7 @@
     });
 
     // 監聽發願總筆數更新計數器
-    db.ref('wishes').on('value', function(snapshot) {
+    onValue(wishesRef, function(snapshot) {
       var totalWishes = snapshot.numChildren();
       counter = totalWishes;
       countEl.textContent = counter.toLocaleString();
@@ -1366,16 +1368,16 @@
       return;
     }
 
-    if (isFirebaseActive && db) {
+    if (isFirebaseActive && db && wishesRef) {
       var btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.textContent = '傳送願力中...';
 
-      db.ref('wishes').push({
+      push(wishesRef, {
         a: myName,
         b: friendName,
         w: selectedWish,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
+        timestamp: serverTimestamp()
       }).then(function() {
         alert('您的願力心燈已成功飄升！');
         window.location.hash = '';
@@ -1491,7 +1493,6 @@
 
   queueNextComet();
 
-})();
 </script>
 </body>
 </html>
