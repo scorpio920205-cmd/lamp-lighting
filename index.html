@@ -531,8 +531,8 @@
   <header class="hud">
     <p class="title-cjk">招生點燈</p>
     <div class="title-rule"></div>
-    <p class="couplet">一燈引路，渡得一人　願以此心，廣結善緣</p>
-    <p class="counter">現在已發願渡人：<b id="lampCount">0</b> 盞</p>
+    <p class="couplet">一燈引路，度得一人　願以此心，廣結善緣</p>
+    <p class="counter">現在已發願度人：<b id="lampCount">0</b> 盞</p>
   </header>
 
   <div class="scene" id="scene"></div>
@@ -547,17 +547,17 @@
 <div class="form-page" id="page2">
   <div class="form-wrap">
     <span class="back-link" id="backLink">← 返回</span>
-    <p class="form-title">發願渡人</p>
+    <p class="form-title">發願度人</p>
     <div class="form-rule"></div>
     <p class="form-sub">願以一燈，照亮一人</p>
 
     <div class="field-label">我的姓名（已在精舍學員）</div>
     <input class="field-input" type="text" placeholder="請輸入您的姓名">
 
-    <div class="field-label">想渡的朋友姓名（尚未上課）</div>
+    <div class="field-label">想度的朋友姓名（尚未上課）</div>
     <input class="field-input" type="text" placeholder="請輸入朋友姓名">
 
-    <div class="field-label" style="margin-bottom:12px">渡人心願</div>
+    <div class="field-label" style="margin-bottom:12px">度人心願</div>
     <div id="wishlist"></div>
 
     <button class="submit-btn" id="submitBtn">送出願力</button>
@@ -879,7 +879,7 @@
     }, bodyGroup);
     t1.textContent = entry.a + " 發願度";
     
-    // 第二行：想渡的朋友姓名
+    // 第二行：想度的朋友姓名
     var t2 = el('text', {
       x: "80", y: "144", 
       "text-anchor": "middle", 
@@ -1284,7 +1284,7 @@
   for (var i=0;i<5;i++){ (function(i){ setTimeout(spawnLantern, i*1300); })(i); }
   setInterval(spawnLantern, 2000);
 
-  /* ---------- 渡人心願選項（如圖樣式） ---------- */
+  /* ---------- 度人心願選項（如圖樣式） ---------- */
   function lanternIconSVG(color){
     var svg = el('svg', {viewBox:"0 0 40 40", class:"wish-icon"});
     var grad = el('radialGradient', {id:"g"+color.replace('#','')}, el('defs', {}, svg));
@@ -1364,7 +1364,7 @@
       return;
     }
     if (!selectedWish) {
-      alert('請選擇一個渡人心願！');
+      alert('請選擇一個度人心願！');
       return;
     }
 
@@ -1395,7 +1395,7 @@
       });
     } else {
       // 預覽模式
-      alert('【預覽模式】感謝您的發願！姓名：' + myName + '，渡朋友：' + friendName + '，心願：' + selectedWish);
+      alert('【預覽模式】感謝您的發願！姓名：' + myName + '，度朋友：' + friendName + '，心願：' + selectedWish);
       
       // 本地飛出天燈效果
       var mockEntry = {a: myName, b: friendName, w: selectedWish};
