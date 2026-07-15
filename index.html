@@ -564,11 +564,12 @@
   </div>
 </div>
 
-<!-- Firebase SDK v9+ Modular (Loaded via CDN ES Modules) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, query, orderByChild, limitToLast, onValue, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
+<script>
+(function(){
   // ====== Firebase 整合設定 ======
   var firebaseConfig = {
     apiKey: "AIzaSyAgKugQ-RcN6-x2jsou1GZ5r3lUNP7jV5o",
@@ -582,13 +583,11 @@
 
   var db = null;
   var isFirebaseActive = false;
-  var wishesRef = null;
 
   try {
     if (firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.apiKey !== "") {
-      var app = initializeApp(firebaseConfig);
-      db = getDatabase(app);
-      wishesRef = ref(db, 'wishes');
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
       isFirebaseActive = true;
       console.log("Firebase initialized successfully.");
     } else {
@@ -1241,9 +1240,8 @@
   }
 
   // 如果 Firebase 已連線，開始監聽資料庫
-  if (isFirebaseActive && db && wishesRef) {
-    var recentWishesQuery = query(wishesRef, orderByChild('timestamp'), limitToLast(100));
-    onValue(recentWishesQuery, function(snapshot) {
+  if (isFirebaseActive && db) {
+    db.ref('wishes').orderByChild('timestamp').limitToLast(100).on('value', function(snapshot) {
       var data = snapshot.val();
       if (data) {
         var temp = [];
@@ -1257,7 +1255,7 @@
     });
 
     // 監聽發願總筆數更新計數器
-    onValue(wishesRef, function(snapshot) {
+    db.ref('wishes').on('value', function(snapshot) {
       var totalWishes = snapshot.numChildren();
       dbCount = totalWishes;
       updateCounterDisplay();
@@ -1369,16 +1367,16 @@
       return;
     }
 
-    if (isFirebaseActive && db && wishesRef) {
+    if (isFirebaseActive && db) {
       var btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.textContent = '傳送願力中...';
 
-      push(wishesRef, {
+      db.ref('wishes').push({
         a: myName,
         b: friendName,
         w: selectedWish,
-        timestamp: serverTimestamp()
+        timestamp: firebase.database.ServerValue.TIMESTAMP
       }).then(function() {
         alert('您的願力心燈已成功飄升！');
         window.location.hash = '';
@@ -1494,6 +1492,7 @@
 
   queueNextComet();
 
+})();
 </script>
 </body>
 </html>
