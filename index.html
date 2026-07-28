@@ -511,6 +511,127 @@
       opacity: 0;
     }
   }
+
+  /* ---------- 普慶精舍夜間發光與投光特效 (Temple Glow & Up-lighting) ---------- */
+  .temple-light-container {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 65vh;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  [data-theme="night"] .temple-light-container {
+    opacity: 1;
+  }
+  [data-theme="day"] .temple-light-container {
+    display: none;
+  }
+
+  /* 精舍後方溫暖金色佛光大氣氣場 (Golden Aura Glow) */
+  .temple-aura-glow {
+    position: absolute;
+    bottom: 0%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(920px, 96vw);
+    height: 420px;
+    border-radius: 50% 50% 0 0;
+    background: radial-gradient(ellipse at bottom center, 
+      rgba(255, 225, 140, 0.48) 0%, 
+      rgba(255, 185, 60, 0.28) 35%, 
+      rgba(255, 150, 20, 0.12) 65%, 
+      transparent 85%);
+    filter: blur(28px);
+    animation: templeBreath 4s ease-in-out infinite alternate;
+  }
+
+  /* 建築向上洗牆燈 / 投射光束 (Up-lighting Spotlights) */
+  .temple-spotlights {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(780px, 92vw);
+    height: 350px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+  }
+  .spotlight-beam {
+    width: 100px;
+    height: 100%;
+    background: linear-gradient(to top, 
+      rgba(255, 240, 180, 0.45) 0%, 
+      rgba(255, 195, 90, 0.2) 50%, 
+      transparent 100%);
+    clip-path: polygon(20% 100%, 80% 100%, 100% 0%, 0% 0%);
+    filter: blur(12px);
+    animation: beamFlicker 3.2s ease-in-out infinite alternate;
+  }
+  .spotlight-beam.beam-center {
+    width: 165px;
+    animation-delay: 0.9s;
+    background: linear-gradient(to top, 
+      rgba(255, 248, 205, 0.58) 0%, 
+      rgba(255, 210, 110, 0.26) 50%, 
+      transparent 100%);
+  }
+  .spotlight-beam.beam-right {
+    animation-delay: 1.6s;
+  }
+
+  /* 建築門口與窗戶暖黃燈光層 (Interior & Doorway Light) */
+  .temple-window-glow {
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(550px, 82vw);
+    height: 130px;
+    background: radial-gradient(ellipse at center, 
+      rgba(255, 255, 235, 0.8) 0%, 
+      rgba(255, 215, 90, 0.5) 45%, 
+      transparent 80%);
+    filter: blur(16px);
+    animation: windowGlowPulse 2.6s ease-in-out infinite alternate;
+  }
+
+  @keyframes templeBreath {
+    0% { opacity: 0.78; transform: translateX(-50%) scale(0.98); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1.03); }
+  }
+  @keyframes beamFlicker {
+    0% { opacity: 0.75; }
+    100% { opacity: 1; }
+  }
+  @keyframes windowGlowPulse {
+    0% { opacity: 0.75; filter: blur(14px); }
+    100% { opacity: 1; filter: blur(22px); }
+  }
+
+  /* 點燈或發願時，精舍金光擴散加持效果 (Blessed Extra Glow) */
+  .temple-light-container.temple-blessed .temple-aura-glow {
+    animation: templeBlessingGlow 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes templeBlessingGlow {
+    0% { opacity: 0.8; }
+    20%, 55% { 
+      opacity: 1; 
+      filter: blur(16px); 
+      background: radial-gradient(ellipse at bottom center, 
+        rgba(255, 255, 230, 0.92) 0%, 
+        rgba(255, 220, 110, 0.68) 40%, 
+        rgba(255, 175, 20, 0.38) 70%, 
+        transparent 92%);
+      transform: translateX(-50%) scale(1.18);
+    }
+    100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  }
 </style>
 </head>
 <body>
@@ -520,6 +641,17 @@
   <div class="clouds" id="clouds"></div>
   <div class="celestial"></div>
   <div class="ground-fade"></div>
+
+  <!-- 普慶精舍夜間發光與投光特效 -->
+  <div class="temple-light-container" id="templeLightContainer">
+    <div class="temple-aura-glow"></div>
+    <div class="temple-spotlights">
+      <div class="spotlight-beam beam-left"></div>
+      <div class="spotlight-beam beam-center"></div>
+      <div class="spotlight-beam beam-right"></div>
+    </div>
+    <div class="temple-window-glow"></div>
+  </div>
 
   <div class="theme-toggle" id="themeToggle">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
@@ -1192,6 +1324,15 @@
       container.classList.add('blooming');
       playBellSound();
       spawnGoldenParticles(container);
+
+      // 精舍金光擴散加持特效
+      var tLight = document.getElementById('templeLightContainer');
+      if (tLight) {
+        tLight.classList.add('temple-blessed');
+        setTimeout(function() {
+          tLight.classList.remove('temple-blessed');
+        }, 2500);
+      }
       
       // 點擊瞬間暫停天燈上升與擺動，使其在空中綻放效果
       wrap.style.animationPlayState = 'paused';
